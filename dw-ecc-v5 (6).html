@@ -1,0 +1,1931 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>DW Event Command</title>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap');
+:root{
+  --bg:#07080f;--s1:#0d0e17;--s2:#13141f;--s3:#191a27;--s4:#1f202e;
+  --b1:#1e2030;--b2:#282a3e;--b3:#323450;
+  --tx:#e2e4f5;--sub:#9496bc;--dim:#6264a0;
+  --ac:#5b6af5;--ac2:#7a87ff;--ag:rgba(91,106,245,.13);
+  --grn:#22c97a;--yel:#f0bc35;--red:#e85555;--ora:#f07845;--blu:#4db8f5;--pur:#a87dff;--cyn:#35d4f0;
+  --fn:'Inter',sans-serif;--fm:'JetBrains Mono',monospace;
+  --r:5px;--r2:9px;
+}
+.lt{--bg:#f0f1fc;--s1:#fafbff;--s2:#eef0fc;--s3:#e4e6f8;--s4:#d8daf2;--b1:#cfd1ec;--b2:#b8badc;--b3:#a2a4cc;--tx:#0d0f22;--sub:#3a3d6e;--dim:#7a7da8;--ac:#4355e8;--ac2:#5b6af5;--ag:rgba(67,85,232,.1);--grn:#16a060;--yel:#c49010;--red:#c43838;--ora:#c85c28;--blu:#2890c8;}
+*{box-sizing:border-box;margin:0;padding:0;}
+html,body{height:100%;overflow:hidden;}
+body{font-family:var(--fn);background:var(--bg);color:var(--tx);font-size:13px;display:flex;flex-direction:column;transition:background .2s,color .2s;}
+
+/* SETUP */
+#setup{position:fixed;inset:0;background:var(--bg);display:flex;align-items:center;justify-content:center;z-index:9999;overflow-y:auto;padding:20px 0;}
+.sc{background:var(--s1);border:1px solid var(--b1);border-radius:var(--r2);padding:40px;width:660px;max-width:96vw;}
+.brand{font-family:var(--fm);font-size:.77em;font-weight:500;letter-spacing:.22em;color:var(--ac);text-transform:uppercase;margin-bottom:4px;}
+.sc-title{font-size:1.85em;font-weight:700;margin-bottom:4px;}
+.sc-sub{color:var(--sub);margin-bottom:28px;line-height:1.6;}
+.fl{font-size:.77em;font-weight:600;letter-spacing:.07em;color:var(--sub);text-transform:uppercase;margin-bottom:4px;display:block;}
+.fi{width:100%;background:var(--s2);border:1px solid var(--b1);border-radius:var(--r);padding:8px 10px;font-family:var(--fn);font-size:1em;color:var(--tx);outline:none;transition:border-color .15s;}
+.fi:focus{border-color:var(--ac);}
+.fi::placeholder{color:var(--dim);}
+.fi option{background:var(--s2);}
+.fg{margin-bottom:12px;}
+.frow{display:flex;gap:10px;}
+.frow .fg{flex:1;}
+textarea.fi{resize:vertical;min-height:52px;}
+.ub{max-height:220px;overflow-y:auto;display:flex;flex-direction:column;gap:4px;margin-bottom:8px;}
+.ub::-webkit-scrollbar{width:3px;}
+.ub::-webkit-scrollbar-thumb{background:var(--b2);border-radius:2px;}
+.ur{display:flex;gap:6px;align-items:center;background:var(--s2);border:1px solid var(--b1);border-radius:var(--r);padding:6px 9px;}
+.ur-cs{font-family:var(--fm);font-size:.92em;font-weight:500;color:var(--ac);width:78px;flex-shrink:0;}
+.ur-tag{font-size:.7em;font-weight:600;color:var(--sub);width:52px;flex-shrink:0;text-align:center;background:var(--s3);border-radius:3px;padding:2px 4px;text-transform:uppercase;letter-spacing:.04em;}
+.ur-tag.ext{color:var(--cyn);background:rgba(53,212,240,.08);}
+.ur-in{flex:1;background:transparent;border:none;border-bottom:1px solid var(--b1);padding:3px 4px;font-family:var(--fn);font-size:1em;color:var(--tx);outline:none;min-width:0;}
+.ur-in:focus{border-bottom-color:var(--ac);}
+.ur-in::placeholder{color:var(--dim);}
+.ur-rm{color:var(--dim);cursor:pointer;font-size:1.2em;line-height:1;flex-shrink:0;transition:color .1s;}
+.ur-rm:hover{color:var(--red);}
+
+/* BUTTONS */
+.btn{font-family:var(--fn);font-size:1em;font-weight:600;padding:6px 13px;border-radius:var(--r);border:1px solid var(--b1);background:var(--s2);color:var(--tx);cursor:pointer;transition:all .12s;white-space:nowrap;display:inline-flex;align-items:center;gap:5px;line-height:1;}
+.btn:hover:not(:disabled){border-color:var(--ac);color:var(--ac);}
+.btn.pri{background:var(--ac);border-color:var(--ac);color:#fff;font-weight:700;}
+.btn.pri:hover:not(:disabled){background:var(--ac2);border-color:var(--ac2);}
+.btn.ghost{background:transparent;}
+.btn.ok{background:var(--grn);border-color:var(--grn);color:#07080f;font-weight:700;}
+.btn.ok:hover:not(:disabled){opacity:.85;}
+.btn.danger{border-color:var(--b1);color:var(--sub);}
+.btn.danger:hover:not(:disabled){border-color:var(--red);color:var(--red);background:rgba(232,85,85,.07);}
+.btn.sm{font-size:.92em;padding:4px 10px;}
+.btn.xs{font-size:.85em;padding:3px 8px;}
+.btn:disabled{opacity:.35;cursor:default;}
+
+/* HEADER */
+#hdr{display:none;height:44px;background:var(--s1);border-bottom:1px solid var(--b1);align-items:center;padding:0 12px;gap:8px;flex-shrink:0;}
+.h-logo{font-family:var(--fm);font-size:.85em;font-weight:500;letter-spacing:.15em;color:var(--ac);}
+.h-ev{font-size:1em;color:var(--sub);}
+.h-ev strong{color:var(--tx);}
+.h-live{font-size:.7em;padding:2px 7px;border-radius:8px;background:rgba(34,201,122,.12);color:var(--grn);border:1px solid rgba(34,201,122,.22);font-family:var(--fm);}
+.h-clock{font-family:var(--fm);font-size:1.08em;font-weight:500;color:var(--tx);margin-left:auto;letter-spacing:.04em;}
+.h-acts{display:flex;gap:4px;}
+
+/* APP SHELL */
+#app{display:none;flex:1;min-height:0;flex-direction:column;}
+.cols{display:flex;flex:1;min-height:0;overflow:hidden;}
+
+/* UNITS COL */
+#uCol{width:188px;flex-shrink:0;background:var(--s1);border-right:1px solid var(--b1);display:flex;flex-direction:column;overflow:hidden;}
+.col-hd{padding:8px 10px;border-bottom:1px solid var(--b1);display:flex;align-items:center;justify-content:space-between;flex-shrink:0;gap:6px;}
+.col-lbl{font-size:.77em;font-weight:700;letter-spacing:.1em;color:var(--sub);text-transform:uppercase;}
+.u-list{flex:1;overflow-y:auto;padding:4px;}
+.u-list::-webkit-scrollbar{width:3px;}
+.u-list::-webkit-scrollbar-thumb{background:var(--b2);border-radius:2px;}
+.uc{border-radius:var(--r);border:1px solid var(--b1);padding:7px 8px;margin-bottom:3px;cursor:pointer;transition:all .12s;}
+.uc:hover{border-color:var(--b2);background:var(--s2);}
+.uc.sel{border-color:var(--ac);background:var(--ag);}
+.uc.u-inc{border-color:var(--red);}
+.uc.u-w30{border-color:var(--ora);}
+.uc-top{display:flex;align-items:center;gap:5px;margin-bottom:3px;}
+.uc-dot{width:7px;height:7px;border-radius:50%;flex-shrink:0;}
+.uc-name{font-size:1em;font-weight:600;flex:1;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}
+.uc-badge{font-size:.7em;padding:1px 5px;border-radius:3px;font-family:var(--fm);flex-shrink:0;}
+.uc-mem{font-size:.82em;color:var(--sub);margin-top:1px;}
+.uc-meta{font-size:.75em;color:var(--dim);margin-top:2px;font-family:var(--fm);}
+.uc-wo{font-size:.75em;color:var(--yel);margin-top:2px;}
+.uc-warn{font-size:.72em;color:var(--ora);margin-top:2px;font-weight:600;}
+/* status colours via CSS vars */
+.sc-roving{--sc:var(--grn);}
+.sc-break{--sc:var(--yel);}
+.sc-offline{--sc:var(--dim);}
+.sc-incident{--sc:var(--red);}
+.sc-other{--sc:var(--pur);}
+.sc-unassigned{--sc:var(--sub);}
+.uc-dot{background:var(--sc,var(--sub));}
+.uc-badge{background:color-mix(in srgb,var(--sc,var(--sub)) 14%,transparent);color:var(--sc,var(--sub));}
+@keyframes pr{0%,100%{box-shadow:0 0 0 0 rgba(232,85,85,.5);}50%{box-shadow:0 0 0 5px rgba(232,85,85,0);}}
+@keyframes po{0%,100%{box-shadow:0 0 0 0 rgba(240,120,69,.5);}50%{box-shadow:0 0 0 4px rgba(240,120,69,0);}}
+.uc.u-inc .uc-dot{animation:pr 1.4s infinite;}
+.uc.u-w30 .uc-dot{animation:po 1.7s infinite;}
+
+/* LOG/QUEUE COL */
+#lCol{display:flex;flex-direction:column;overflow:hidden;background:var(--s1);border-right:1px solid var(--b1);min-width:260px;}
+.l-hd{display:flex;align-items:center;gap:5px;padding:8px 10px;border-bottom:1px solid var(--b1);flex-shrink:0;}
+.l-tabs{display:flex;gap:3px;margin-left:4px;}
+.ltab{font-size:.77em;font-weight:600;padding:3px 9px;border-radius:3px;border:1px solid var(--b1);background:transparent;color:var(--sub);cursor:pointer;transition:all .1s;font-family:var(--fm);}
+.ltab:hover{color:var(--tx);}
+.ltab.on{background:var(--s3);color:var(--tx);border-color:var(--b2);}
+.l-filter{font-size:.82em;padding:3px 6px;background:var(--s2);border:1px solid var(--b1);border-radius:var(--r);color:var(--tx);outline:none;font-family:var(--fn);max-width:100px;}
+.l-filter:focus{border-color:var(--ac);}
+.l-filter option{background:var(--s2);}
+.l-empty{display:none;flex-direction:column;align-items:center;justify-content:center;padding:30px 16px;gap:8px;color:var(--dim);text-align:center;font-size:1em;}
+.l-empty-ico{font-size:2em;opacity:.3;}
+.l-feed{flex:1;overflow-y:auto;padding:5px;display:flex;flex-direction:column;gap:3px;}
+.l-feed::-webkit-scrollbar{width:3px;}
+.l-feed::-webkit-scrollbar-thumb{background:var(--b2);border-radius:2px;}
+
+/* JOB CARDS */
+.jc{border-radius:var(--r);border:1px solid var(--b1);background:var(--s2);padding:8px 10px;cursor:pointer;transition:all .12s;border-left:3px solid var(--b2);position:relative;}
+.jc:hover{background:var(--s3);}
+.jc.sv-c{border-left-color:var(--red);}
+.jc.sv-h{border-left-color:var(--ora);}
+.jc.sv-m{border-left-color:var(--yel);}
+.jc.sv-l{border-left-color:var(--grn);}
+.jc.flagged{border-left-color:var(--ac);}
+.jc.hl{outline:2px solid var(--ac);outline-offset:1px;}
+.jc.closed{opacity:.45;}
+.j-top{display:flex;align-items:center;gap:4px;margin-bottom:4px;flex-wrap:wrap;}
+.j-id{font-family:var(--fm);font-size:.7em;color:var(--dim);}
+.j-time{font-family:var(--fm);font-size:.7em;color:var(--dim);}
+.j-sv{font-family:var(--fm);font-size:.7em;padding:2px 5px;border-radius:3px;}
+.sv-c .j-sv,.j-sv.c{background:rgba(232,85,85,.18);color:var(--red);font-weight:600;}
+.sv-h .j-sv,.j-sv.h{background:rgba(240,120,69,.14);color:var(--ora);}
+.sv-m .j-sv,.j-sv.m{background:rgba(240,188,53,.13);color:var(--yel);}
+.sv-l .j-sv,.j-sv.l{background:rgba(34,201,122,.11);color:var(--grn);}
+.j-flag{font-size:.85em;cursor:pointer;opacity:.3;transition:opacity .1s;padding:0 1px;}
+.j-flag:hover,.j-flag.on{opacity:1;}
+.j-unit{font-size:.82em;font-weight:600;padding:2px 5px;border-radius:3px;margin-left:auto;}
+.j-pin{font-size:.72em;color:var(--sub);}
+.j-title{font-size:1em;font-weight:600;margin-bottom:2px;line-height:1.35;}
+.j-meta{font-size:.82em;color:var(--sub);line-height:1.5;}
+.j-tn{font-family:var(--fm);font-size:.72em;color:var(--dim);margin-top:2px;}
+.j-acts{display:flex;gap:4px;margin-top:6px;flex-wrap:wrap;}
+.j-closed-note{font-size:.82em;color:var(--grn);margin-top:3px;}
+
+/* RESIZE */
+.rh{width:5px;flex-shrink:0;background:transparent;cursor:col-resize;transition:background .15s;}
+.rh:hover,.rh.drag{background:var(--ac);}
+
+/* MAP COL */
+#mCol{flex:1;min-width:200px;position:relative;overflow:hidden;background:var(--bg);}
+#mc{position:absolute;top:0;left:0;}
+.map-emp{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;pointer-events:none;}
+.map-emp.gone{display:none;}
+.me-box{border:2px dashed var(--b2);border-radius:var(--r2);padding:28px 44px;text-align:center;pointer-events:all;cursor:pointer;transition:border-color .15s;}
+.me-box:hover{border-color:var(--ac);}
+.me-ico{font-size:1.85em;margin-bottom:8px;}
+.me-t{font-size:1.08em;font-weight:600;color:var(--sub);}
+.me-s{font-size:.85em;color:var(--dim);margin-top:3px;}
+.map-toolbar{position:absolute;top:8px;left:50%;transform:translateX(-50%);display:flex;gap:4px;z-index:20;background:var(--s1);border:1px solid var(--b1);border-radius:var(--r);padding:4px;}
+.mt-btn{font-size:.82em;font-weight:600;padding:4px 10px;border-radius:3px;border:1px solid transparent;background:transparent;color:var(--sub);cursor:pointer;transition:all .1s;font-family:var(--fn);}
+.mt-btn:hover{color:var(--tx);}
+.mt-btn.on{background:var(--ag);border-color:var(--ac);color:var(--ac);}
+.map-ctrls{position:absolute;bottom:10px;right:10px;display:flex;flex-direction:column;gap:3px;z-index:10;}
+.mc-b{width:27px;height:27px;background:var(--s1);border:1px solid var(--b1);border-radius:var(--r);display:flex;align-items:center;justify-content:center;cursor:pointer;color:var(--sub);font-size:.92em;transition:all .1s;}
+.mc-b:hover{border-color:var(--ac);color:var(--ac);}
+.map-hint{position:absolute;bottom:10px;left:10px;font-family:var(--fm);font-size:.7em;color:var(--dim);z-index:10;pointer-events:none;}
+
+/* QUICK PIN MODAL (drops on map click) */
+#pinModal{position:absolute;background:var(--s1);border:1px solid var(--b1);border-radius:var(--r2);padding:14px;width:240px;z-index:60;display:none;box-shadow:0 8px 28px rgba(0,0,0,.4);}
+#pinModal.on{display:block;}
+.pm-title{font-size:.92em;font-weight:600;margin-bottom:8px;}
+.pm-sv{display:grid;grid-template-columns:repeat(4,1fr);gap:3px;margin-bottom:8px;}
+.sv-pill{padding:4px;border-radius:3px;border:1px solid var(--b1);background:var(--s2);font-size:.77em;font-weight:700;color:var(--sub);cursor:pointer;text-align:center;transition:all .1s;}
+.sv-pill.on.c{border-color:var(--red);color:var(--red);background:rgba(232,85,85,.12);}
+.sv-pill.on.h{border-color:var(--ora);color:var(--ora);background:rgba(240,120,69,.1);}
+.sv-pill.on.m{border-color:var(--yel);color:var(--yel);background:rgba(240,188,53,.1);}
+.sv-pill.on.l{border-color:var(--grn);color:var(--grn);background:rgba(34,201,122,.1);}
+.pm-in{width:100%;background:var(--s2);border:1px solid var(--b1);border-radius:var(--r);padding:6px 8px;font-family:var(--fn);font-size:1em;color:var(--tx);outline:none;margin-bottom:8px;}
+.pm-in:focus{border-color:var(--ac);}
+.pm-in::placeholder{color:var(--dim);}
+.pm-acts{display:flex;gap:5px;}
+
+/* JOB DETAIL PANEL */
+#jobPanel{position:absolute;top:0;right:0;width:320px;height:100%;background:var(--s1);border-left:1px solid var(--b1);z-index:50;display:none;flex-direction:column;box-shadow:-4px 0 24px rgba(0,0,0,.3);overflow:hidden;}
+#jobPanel.on{display:flex;}
+.jp-hd{display:flex;align-items:center;padding:10px 12px;border-bottom:1px solid var(--b1);flex-shrink:0;gap:8px;}
+.jp-id{font-family:var(--fm);font-size:.77em;color:var(--dim);}
+.jp-x{cursor:pointer;color:var(--dim);font-size:1.38em;line-height:1;margin-left:auto;}
+.jp-x:hover{color:var(--tx);}
+.jp-body{flex:1;overflow-y:auto;padding:12px;display:flex;flex-direction:column;gap:12px;}
+.jp-body::-webkit-scrollbar{width:3px;}
+.jp-body::-webkit-scrollbar-thumb{background:var(--b2);border-radius:2px;}
+.jp-title{font-size:1.15em;font-weight:700;line-height:1.3;}
+.jp-chips{display:flex;gap:5px;align-items:center;flex-wrap:wrap;}
+.jp-sec{font-size:.75em;font-weight:700;letter-spacing:.09em;color:var(--sub);text-transform:uppercase;margin-bottom:5px;}
+.jp-lbl{font-size:.77em;font-weight:600;letter-spacing:.06em;color:var(--sub);text-transform:uppercase;margin-bottom:3px;display:block;}
+.jp-fi{width:100%;background:var(--s2);border:1px solid var(--b1);border-radius:var(--r);padding:6px 8px;font-family:var(--fn);font-size:1em;color:var(--tx);outline:none;transition:border-color .15s;}
+.jp-fi:focus{border-color:var(--ac);}
+.jp-fi::placeholder{color:var(--dim);}
+.jp-fi option{background:var(--s2);}
+textarea.jp-fi{resize:none;height:52px;}
+.jp-sv-row{display:grid;grid-template-columns:repeat(4,1fr);gap:4px;}
+.jp-sv-btn{padding:5px 3px;border-radius:var(--r);border:1px solid var(--b1);background:var(--s2);font-size:.77em;font-weight:700;color:var(--sub);cursor:pointer;text-align:center;transition:all .1s;}
+.jp-sv-btn.on.c{border-color:var(--red);color:var(--red);background:rgba(232,85,85,.1);}
+.jp-sv-btn.on.h{border-color:var(--ora);color:var(--ora);background:rgba(240,120,69,.08);}
+.jp-sv-btn.on.m{border-color:var(--yel);color:var(--yel);background:rgba(240,188,53,.09);}
+.jp-sv-btn.on.l{border-color:var(--grn);color:var(--grn);background:rgba(34,201,122,.09);}
+.thread-wrap{display:flex;flex-direction:column;gap:4px;max-height:180px;overflow-y:auto;}
+.thread-wrap::-webkit-scrollbar{width:3px;}
+.thread-wrap::-webkit-scrollbar-thumb{background:var(--b2);border-radius:2px;}
+.te{background:var(--s2);border-radius:var(--r);padding:6px 8px;}
+.te-t{font-family:var(--fm);font-size:.7em;color:var(--dim);margin-bottom:2px;}
+.te-b{font-size:.92em;color:var(--tx);line-height:1.5;}
+.te.audit .te-b{color:var(--sub);font-size:.85em;font-style:italic;}
+.jp-ft{padding:10px 12px;border-top:1px solid var(--b1);display:flex;gap:5px;flex-shrink:0;flex-wrap:wrap;}
+/* smart dropdown */
+.sd-wrap{position:relative;}
+.sd-sel{width:100%;background:var(--s2);border:1px solid var(--b1);border-radius:var(--r);padding:6px 8px;font-family:var(--fn);font-size:1em;color:var(--tx);outline:none;transition:border-color .15s;}
+.sd-sel:focus{border-color:var(--ac);}
+.sd-sel option{background:var(--s2);}
+.sd-new{display:none;flex-direction:column;gap:4px;padding:7px;background:var(--s3);border-radius:var(--r);border:1px solid var(--b2);margin-top:3px;}
+.sd-new.on{display:flex;}
+.sd-row{display:flex;gap:4px;}
+.sd-ni{flex:1;background:var(--s2);border:1px solid var(--b1);border-radius:var(--r);padding:5px 7px;font-family:var(--fn);font-size:1em;color:var(--tx);outline:none;}
+.sd-ni:focus{border-color:var(--ac);}
+.sd-ni::placeholder{color:var(--dim);}
+.warn-stripe{background:rgba(240,188,53,.1);border:1px solid rgba(240,188,53,.22);border-radius:var(--r);padding:5px 9px;font-size:.82em;color:var(--yel);display:none;}
+.warn-stripe.on{display:block;}
+
+/* UNIT SETTINGS SLIDE */
+.slide{position:fixed;top:44px;right:0;bottom:0;background:var(--s1);border-left:1px solid var(--b1);z-index:200;display:flex;flex-direction:column;transform:translateX(100%);transition:transform .25s cubic-bezier(.4,0,.2,1);}
+.slide.on{transform:translateX(0);}
+.sl-ov{position:fixed;inset:0;z-index:199;display:none;}
+.sl-ov.on{display:block;}
+.sl-hd{display:flex;align-items:center;padding:11px 13px;border-bottom:1px solid var(--b1);flex-shrink:0;gap:8px;}
+.sl-title{font-size:1.08em;font-weight:700;flex:1;}
+.sl-x{cursor:pointer;color:var(--dim);font-size:1.5em;line-height:1;}
+.sl-x:hover{color:var(--tx);}
+.sl-body{flex:1;overflow-y:auto;padding:10px;}
+.sl-body::-webkit-scrollbar{width:3px;}
+.sl-body::-webkit-scrollbar-thumb{background:var(--b2);border-radius:2px;}
+
+/* Unit row in settings */
+.us-row{display:flex;align-items:center;gap:8px;background:var(--s2);border:1px solid var(--b1);border-radius:var(--r);padding:8px 10px;margin-bottom:4px;cursor:pointer;transition:all .12s;}
+.us-row:hover{border-color:var(--b2);background:var(--s3);}
+.us-dot{width:9px;height:9px;border-radius:50%;flex-shrink:0;}
+.us-name{font-size:1em;font-weight:600;flex:1;}
+.us-type{font-size:.72em;color:var(--sub);font-family:var(--fm);}
+.us-mem{font-size:.82em;color:var(--sub);}
+
+/* Unit edit panel */
+#uEditPanel{background:var(--s3);border:1px solid var(--b2);border-radius:var(--r);padding:10px;margin-top:4px;display:none;}
+#uEditPanel.on{display:block;}
+.color-row{display:flex;gap:4px;flex-wrap:wrap;margin-top:4px;}
+.cp{width:17px;height:17px;border-radius:3px;cursor:pointer;border:2px solid transparent;transition:all .1s;}
+.cp:hover{transform:scale(1.18);}
+.cp.on{border-color:#fff;}
+.shape-row{display:flex;gap:4px;margin-top:4px;}
+.shp{width:25px;height:25px;background:var(--s2);border:1px solid var(--b1);border-radius:var(--r);display:flex;align-items:center;justify-content:center;cursor:pointer;font-size:.92em;transition:all .1s;}
+.shp:hover,.shp.on{border-color:var(--ac);}
+
+/* QUICK LOG BAR */
+#qbar{border-top:1px solid var(--b1);background:var(--s1);padding:7px 10px;display:none;align-items:center;gap:6px;flex-shrink:0;flex-wrap:wrap;}
+#qbar.on{display:flex;}
+.qb-lbl{font-size:.75em;font-weight:700;letter-spacing:.09em;color:var(--sub);text-transform:uppercase;white-space:nowrap;}
+.qb-sel{background:var(--s2);border:1px solid var(--b1);border-radius:var(--r);padding:5px 7px;font-family:var(--fn);font-size:1em;color:var(--tx);outline:none;}
+.qb-sel:focus{border-color:var(--ac);}
+.qb-sel option{background:var(--s2);}
+.sv-dots{display:flex;gap:3px;}
+.sv-dot{width:20px;height:20px;border-radius:3px;cursor:pointer;border:1px solid transparent;font-size:.72em;font-weight:700;display:flex;align-items:center;justify-content:center;transition:all .1s;}
+.sv-dot.c{background:rgba(232,85,85,.12);color:var(--red);}
+.sv-dot.h{background:rgba(240,120,69,.1);color:var(--ora);}
+.sv-dot.m{background:rgba(240,188,53,.1);color:var(--yel);}
+.sv-dot.l{background:rgba(34,201,122,.09);color:var(--grn);}
+.sv-dot.on{border-color:currentColor;box-shadow:0 0 0 1px currentColor;}
+.qb-in{flex:1;background:var(--s2);border:1px solid var(--b1);border-radius:var(--r);padding:5px 9px;font-family:var(--fn);font-size:1em;color:var(--tx);outline:none;min-width:130px;}
+.qb-in:focus{border-color:var(--ac);}
+.qb-in::placeholder{color:var(--dim);}
+textarea.qb-in{font-family:var(--fn);}
+
+/* NOTEPAD */
+#np{position:fixed;bottom:0;right:0;width:248px;background:var(--s1);border:1px solid var(--b1);border-bottom:none;border-radius:var(--r2) var(--r2) 0 0;z-index:80;transform:translateY(calc(100% - 30px));transition:transform .22s;}
+#np.open{transform:translateY(0);}
+.np-hd{display:flex;align-items:center;padding:6px 10px;cursor:pointer;height:30px;gap:5px;}
+.np-t{font-size:.77em;font-weight:700;color:var(--sub);letter-spacing:.08em;text-transform:uppercase;flex:1;}
+.np-arr{font-size:.7em;color:var(--dim);transition:transform .22s;}
+#np.open .np-arr{transform:rotate(180deg);}
+#npTxt{width:100%;height:130px;background:var(--s2);border:none;border-top:1px solid var(--b1);padding:8px 10px;font-family:var(--fn);font-size:1em;color:var(--tx);outline:none;resize:none;line-height:1.6;}
+#npTxt::placeholder{color:var(--dim);}
+
+/* MODALS */
+.mb{position:fixed;inset:0;background:rgba(0,0,0,.55);display:none;align-items:center;justify-content:center;z-index:500;padding:16px;}
+.mb.on{display:flex;}
+.modal{background:var(--s1);border:1px solid var(--b1);border-radius:var(--r2);padding:22px;width:460px;max-width:100%;max-height:88vh;overflow-y:auto;}
+.modal::-webkit-scrollbar{width:3px;}
+.modal::-webkit-scrollbar-thumb{background:var(--b2);border-radius:2px;}
+.modal-title{font-size:1.38em;font-weight:700;margin-bottom:4px;}
+.modal-sub{color:var(--sub);margin-bottom:14px;line-height:1.6;}
+.modal-acts{display:flex;gap:6px;justify-content:flex-end;margin-top:14px;flex-wrap:wrap;}
+.divider{height:1px;background:var(--b1);margin:10px 0;}
+
+/* CUSTOMISER */
+.cs-sec{margin-bottom:14px;}
+.cs-t{font-size:.75em;font-weight:700;letter-spacing:.09em;color:var(--sub);text-transform:uppercase;margin-bottom:7px;}
+.cr2{display:flex;align-items:center;gap:8px;margin-bottom:6px;}
+.cr2 label{flex:1;font-size:1em;}
+.cr2-v{font-family:var(--fm);font-size:.85em;color:var(--ac);width:36px;text-align:right;}
+.csl{flex:1;accent-color:var(--ac);}
+.ccol{width:27px;height:27px;border-radius:var(--r);border:1px solid var(--b1);cursor:pointer;padding:0;background:none;}
+.tog{position:relative;width:33px;height:18px;flex-shrink:0;}
+.tog input{opacity:0;width:0;height:0;}
+.tog-tr{position:absolute;inset:0;background:var(--s3);border-radius:9px;border:1px solid var(--b1);cursor:pointer;transition:background .2s;}
+.tog input:checked+.tog-tr{background:var(--ac);border-color:var(--ac);}
+.tog-th{position:absolute;top:3px;left:3px;width:10px;height:10px;border-radius:50%;background:#fff;transition:transform .2s;pointer-events:none;}
+.tog input:checked~.tog-th{transform:translateX(15px);}
+
+
+/* UNIT DETAIL PANEL */
+#uPanel{position:absolute;top:0;left:0;width:270px;height:100%;background:var(--s1);border-right:1px solid var(--b1);z-index:45;display:none;flex-direction:column;box-shadow:4px 0 24px rgba(0,0,0,.3);overflow:hidden;}
+#uPanel.on{display:flex;}
+.up2-hd{display:flex;align-items:center;padding:10px 12px;border-bottom:1px solid var(--b1);flex-shrink:0;gap:8px;}
+.up2-name{font-size:1.15em;font-weight:700;flex:1;}
+.up2-x{cursor:pointer;color:var(--dim);font-size:1.38em;line-height:1;}
+.up2-x:hover{color:var(--tx);}
+.up2-body{flex:1;overflow-y:auto;padding:12px;display:flex;flex-direction:column;gap:12px;}
+.up2-body::-webkit-scrollbar{width:3px;}
+.up2-body::-webkit-scrollbar-thumb{background:var(--b2);border-radius:2px;}
+.up2-sec{font-size:.75em;font-weight:700;letter-spacing:.09em;color:var(--sub);text-transform:uppercase;margin-bottom:6px;}
+.st-grid2{display:grid;grid-template-columns:1fr 1fr;gap:4px;}
+.st-b2{padding:7px 6px;border-radius:var(--r);border:1px solid var(--b1);background:var(--s2);font-size:.92em;font-weight:600;color:var(--sub);cursor:pointer;text-align:center;transition:all .1s;}
+.st-b2:hover{color:var(--tx);}
+.st-b2.on.rov{border-color:var(--grn);color:var(--grn);background:rgba(34,201,122,.1);}
+.st-b2.on.brk{border-color:var(--yel);color:var(--yel);background:rgba(240,188,53,.1);}
+.st-b2.on.off{border-color:var(--dim);color:var(--sub);background:rgba(62,64,96,.15);}
+.st-b2.on.inc{border-color:var(--red);color:var(--red);background:rgba(232,85,85,.1);}
+.st-b2.on.oth{border-color:var(--pur);color:var(--pur);background:rgba(168,125,255,.1);}
+.up2-fi{width:100%;background:var(--s2);border:1px solid var(--b1);border-radius:var(--r);padding:6px 8px;font-family:var(--fn);font-size:1em;color:var(--tx);outline:none;margin-bottom:4px;}
+.up2-fi:focus{border-color:var(--ac);}
+.up2-fi::placeholder{color:var(--dim);}
+.up2-job{border-radius:var(--r);border:1px solid var(--b1);background:var(--s2);padding:7px 9px;cursor:pointer;transition:all .12s;margin-bottom:3px;border-left:3px solid var(--b2);}
+.up2-job:hover{background:var(--s3);}
+.up2-job.sv-c{border-left-color:var(--red);}
+.up2-job.sv-h{border-left-color:var(--ora);}
+.up2-job.sv-m{border-left-color:var(--yel);}
+.up2-job.sv-l{border-left-color:var(--grn);}
+.up2-job-top{display:flex;align-items:center;gap:5px;margin-bottom:2px;}
+.up2-col-row{display:flex;gap:4px;flex-wrap:wrap;margin-top:4px;}
+.up2-shp-row{display:flex;gap:4px;margin-top:4px;}
+
+.au-opt{padding:6px 12px;border-radius:var(--r);cursor:pointer;font-size:.92em;color:var(--tx);transition:background .1s;}
+.au-opt:hover{background:var(--s3);}
+input[type=file]{display:none;}
+</style>
+</head>
+<body>
+
+<!-- SETUP -->
+<div id="setup">
+<div class="sc">
+  <div class="brand">DanceWize NSW</div>
+  <div class="sc-title">Event Command Centre</div>
+  <div class="sc-sub">Configure your event. Units and settings can be changed once live.</div>
+  <div class="fg"><label class="fl">Event Name</label><input class="fi" id="sName" placeholder="e.g. Splendour in the Grass 2026"></div>
+  <div class="fg">
+    <label class="fl">Units &amp; Contacts — <span id="sCnt">0</span></label>
+    <div class="ub" id="sUnits"></div>
+    <div style="display:flex;gap:5px;flex-wrap:wrap">
+      <button class="btn sm ghost" onclick="addSU('rover')">+ Rover</button>
+      <button class="btn sm ghost" onclick="addSU('int')">+ Internal</button>
+      <button class="btn sm ghost" onclick="addSU('ext')">+ External</button>
+    </div>
+  </div>
+  <button class="btn pri" style="width:100%;font-size:1.05em;padding:10px;margin-top:4px" onclick="goLive()">Go Live →</button>
+</div>
+</div>
+
+<!-- HEADER -->
+<div id="hdr">
+  <div class="h-logo">DW·ECC</div>
+  <div class="h-ev">Event: <strong id="hName"></strong></div>
+  <span class="h-live">● LIVE</span>
+  <div class="h-clock" id="hClk">00:00:00</div>
+  <div class="h-acts">
+    <button class="btn sm" onclick="document.getElementById('mf').click()">↑ Map</button>
+    <button class="btn sm pri" onclick="openNewJob()">＋ New Job</button>
+    <button class="btn sm" onclick="exportCSV()">↓ CSV</button>
+    <button class="btn sm" onclick="openCust()">Display</button>
+    <button class="btn sm" onclick="toggleTheme()" id="thBtn">☀</button>
+    <button class="btn sm danger" id="finBtn" onclick="openModal('mFin')">⏹ Finalise</button>
+    <button class="btn sm" onclick="openModal('mNew')">↺ New</button>
+  </div>
+</div>
+
+<!-- APP -->
+<div id="app">
+  <div class="cols">
+
+    <!-- Units -->
+    <div id="uCol">
+      <div class="col-hd">
+        <span class="col-lbl">Units</span>
+        <span id="uCnt" style="font-family:var(--fm);font-size:.85em;color:var(--tx)">0</span>
+        <div style="display:flex;gap:3px;margin-left:auto">
+          <button class="btn xs ghost" onclick="openAddUnitMenu(event)" title="Add unit">＋</button>
+          <button class="btn xs ghost" onclick="openUnitsSlide()" title="Manage units">⚙</button>
+        </div>
+      </div>
+      <div class="u-list" id="uList"></div>
+    </div>
+
+    <!-- Log/Queue -->
+    <div class="rh" id="rhu"></div>
+    <div id="lCol">
+      <div class="l-hd">
+        <span class="col-lbl">Jobs</span>
+        <span id="lCnt" style="font-family:var(--fm);font-size:.82em;color:var(--tx);background:var(--s3);padding:1px 6px;border-radius:8px">0</span>
+        <div class="l-tabs">
+          <div class="ltab on" id="tab-open" onclick="setTab('open')">Open</div>
+          <div class="ltab" id="tab-all"  onclick="setTab('all')">All</div>
+        </div>
+        <select class="l-filter" id="lFilter" onchange="renderJobs()">
+          <option value="">All units</option>
+        </select>
+      </div>
+      <div class="l-empty" id="lEmpty"><div class="l-empty-ico">📋</div><div>No jobs yet</div></div>
+      <div class="l-feed" id="lFeed"></div>
+    </div>
+
+    <div class="rh" id="rh"></div>
+
+    <!-- Map -->
+    <div id="mCol">
+      <canvas id="mc"></canvas>
+      <div class="map-emp" id="mapEmp">
+        <div class="me-box" onclick="document.getElementById('mf').click()">
+          <div class="me-ico">🗺️</div>
+          <div class="me-t">Load Site Map</div>
+          <div class="me-s">PNG / JPG from Zone Mapper</div>
+        </div>
+      </div>
+
+
+      <!-- Unit detail panel -->
+      <div id="uPanel">
+        <div class="up2-hd">
+          <div class="up2-name" id="up2Name">—</div>
+          <span class="up2-x" onclick="closeUnitPanel()">×</span>
+        </div>
+        <div class="up2-body">
+          <!-- Status -->
+          <div>
+            <div class="up2-sec">Status</div>
+            <div class="st-grid2">
+              <div class="st-b2 rov" id="upst-roving"   onclick="setUnitStatus('roving')">Roving</div>
+              <div class="st-b2 brk" id="upst-break"    onclick="setUnitStatus('break')">On Break</div>
+              <div class="st-b2 off" id="upst-offline"  onclick="setUnitStatus('offline')">Offline</div>
+              <div class="st-b2 inc" id="upst-incident" onclick="setUnitStatus('incident')">Incident</div>
+              <div class="st-b2 oth" id="upst-other"    onclick="setUnitStatus('other')">Other</div>
+            </div>
+            <div id="up2StTime" style="font-family:var(--fm);font-size:.75em;color:var(--sub);margin-top:5px;"></div>
+          </div>
+          <!-- Members -->
+          <div>
+            <div class="up2-sec">Members</div>
+            <input class="up2-fi" id="up2M1" placeholder="Member 1" oninput="saveUnitMem()">
+            <input class="up2-fi" id="up2M2" placeholder="Member 2" oninput="saveUnitMem()">
+          </div>
+          <!-- Appearance -->
+          <div id="up2AppearF">
+            <div class="up2-sec">Colour</div>
+            <div class="up2-col-row" id="up2Cols"></div>
+            <div class="up2-sec" style="margin-top:10px">Pin Shape</div>
+            <div class="up2-shp-row" id="up2Shps" style="flex-wrap:wrap;gap:4px"></div>
+          </div>
+          <!-- Active job -->
+          <div id="up2ActiveJob" style="display:none">
+            <div class="up2-sec">Active Job</div>
+            <div id="up2ActiveJobCard"></div>
+          </div>
+          <!-- Job history -->
+          <div>
+            <div class="up2-sec">Job History</div>
+            <div id="up2Jobs"><div style="font-size:.85em;color:var(--dim)">No jobs yet</div></div>
+          </div>
+        </div>
+        <div style="padding:10px 12px;border-top:1px solid var(--b1);display:flex;gap:5px;flex-shrink:0">
+          <button class="btn pri sm" style="flex:1" onclick="openNewJobForUnit()">＋ New Job</button>
+          <button class="btn ghost sm" onclick="closeUnitPanel()">Close</button>
+        </div>
+      </div>
+
+      <!-- Map toolbar -->
+      <div class="map-toolbar" id="mapToolbar">
+        <div class="mt-btn on" id="mt-select" onclick="setMapMode('select')">✦ Select</div>
+        <div class="mt-btn" id="mt-pin" onclick="setMapMode('pin')">📍 Drop Pin</div>
+        <div class="mt-btn" id="mt-move" onclick="setMapMode('move')">✥ Move Unit</div>
+      </div>
+
+      <!-- Quick pin modal -->
+      <div id="pinModal">
+        <div class="pm-title">New Job at this location</div>
+        <div class="pm-sv">
+          <div class="sv-pill c" id="pm-c" onclick="setPinSev('c')">Crit</div>
+          <div class="sv-pill h" id="pm-h" onclick="setPinSev('h')">High</div>
+          <div class="sv-pill m" id="pm-m" onclick="setPinSev('m')">Med</div>
+          <div class="sv-pill l" id="pm-l" onclick="setPinSev('l')">Low</div>
+        </div>
+        <input class="pm-in" id="pmSum" placeholder="Summary…" onkeydown="if(event.key==='Enter')confirmPinJob()">
+        <div class="pm-acts">
+          <button class="btn pri xs" style="flex:1" onclick="confirmPinJob()">Create Job</button>
+          <button class="btn ghost xs" onclick="cancelPin()">Cancel</button>
+        </div>
+      </div>
+
+      <!-- Job detail panel -->
+      <div id="jobPanel">
+        <div class="jp-hd">
+          <span class="jp-id" id="jpId"></span>
+          <div class="jp-chips" id="jpChips" style="flex:1;margin-left:6px"></div>
+          <span class="jp-x" onclick="closeJobPanel()">×</span>
+        </div>
+        <div class="jp-body">
+          <div>
+            <div class="jp-title" id="jpTitle"></div>
+          </div>
+
+          <div>
+            <div class="jp-sec">Severity</div>
+            <div class="jp-sv-row">
+              <div class="jp-sv-btn c" id="jsc" onclick="setJSev('c')">Critical</div>
+              <div class="jp-sv-btn h" id="jsh" onclick="setJSev('h')">High</div>
+              <div class="jp-sv-btn m" id="jsm" onclick="setJSev('m')">Medium</div>
+              <div class="jp-sv-btn l" id="jsl" onclick="setJSev('l')">Low</div>
+            </div>
+          </div>
+
+          <div>
+            <label class="jp-lbl">Summary</label>
+            <input class="jp-fi" id="jSum" placeholder="Job summary">
+          </div>
+
+          <div>
+            <label class="jp-lbl">Assigned Unit</label>
+            <div class="sd-wrap">
+              <select class="sd-sel" id="jUnit" onchange="onJUnit()"><option value="">— Unassigned —</option></select>
+              <div class="sd-new" id="jUnitNew">
+                <div class="sd-row">
+                  <input class="sd-ni" id="jUNN" placeholder="Unit name">
+                  <input class="sd-ni" id="jUNC" placeholder="Contact" style="max-width:100px">
+                </div>
+                <button class="btn xs ok" onclick="addUnitFromJ()">Add</button>
+              </div>
+            </div>
+            <div class="warn-stripe" id="jWarn"></div>
+          </div>
+
+          <div>
+            <label class="jp-lbl">Caller / Requested By</label>
+            <div class="sd-wrap">
+              <select class="sd-sel" id="jCaller" onchange="onJCaller()"><option value="">— Select —</option></select>
+              <div class="sd-new" id="jCallerNew">
+                <div class="sd-row">
+                  <input class="sd-ni" id="jCNN" placeholder="Name">
+                  <input class="sd-ni" id="jCNC" placeholder="Contact" style="max-width:100px">
+                </div>
+                <button class="btn xs ok" onclick="addCallerFromJ()">Add</button>
+              </div>
+            </div>
+          </div>
+
+          <div>
+            <label class="jp-lbl">Location / Grid Ref</label>
+            <input class="jp-fi" id="jLoc" placeholder="e.g. B4, Stage Right">
+          </div>
+
+          <div>
+            <label class="jp-lbl">Notes</label>
+            <textarea class="jp-fi" id="jNotes" placeholder="Additional context…"></textarea>
+          </div>
+
+          <div>
+            <div class="jp-sec">Thread &amp; Audit Trail</div>
+            <div class="thread-wrap" id="jpThread"></div>
+            <textarea class="jp-fi" style="height:40px;margin-top:6px" id="jpUpd" placeholder="Add an update…"></textarea>
+            <button class="btn xs" style="margin-top:5px;border-color:var(--blu);color:var(--blu)" onclick="addThread()">Add Update</button>
+          </div>
+        </div>
+        <div class="jp-ft" id="jpFt"></div>
+      </div>
+
+      <div class="map-ctrls">
+        <div class="mc-b" onclick="zm(1.12)">+</div>
+        <div class="mc-b" onclick="zm(0.88)">−</div>
+        <div class="mc-b" onclick="fitMap()">⊡</div>
+        <div class="mc-b" id="gridBtn" onclick="openGridSetup()" title="Calibrate grid">⊞</div>
+      </div>
+      <div class="map-hint" id="mapHint">Select a unit pin or drop a new pin</div>
+    </div>
+  </div>
+
+  <!-- Quick log bar -->
+  <div id="qbar" class="on">
+    <div style="display:flex;flex-direction:column;gap:4px;flex:1;min-width:0">
+      <div style="display:flex;align-items:center;gap:6px;flex-wrap:wrap">
+        <span class="qb-lbl">Quick Log</span>
+        <select class="qb-sel" id="qbUnit"><option value="">— No unit —</option></select>
+        <div class="sv-dots" id="qbDots">
+          <div class="sv-dot c" data-s="c" onclick="setQS('c')" title="Critical">C</div>
+          <div class="sv-dot h" data-s="h" onclick="setQS('h')" title="High">H</div>
+          <div class="sv-dot m" data-s="m" onclick="setQS('m')" title="Medium">M</div>
+          <div class="sv-dot l" data-s="l" onclick="setQS('l')" title="Low">L</div>
+        </div>
+        <input class="qb-in" id="qbSum" placeholder="Job title / summary (set after call)" style="flex:1;min-width:120px">
+        <button class="btn sm pri" onclick="quickLog()">Log →</button>
+        <button class="btn sm ok" onclick="quickLogClose()" title="Log and immediately close — for calls needing no follow-up">Log &amp; Close</button>
+        <button class="btn sm ghost" onclick="openNewJob()">Full Form</button>
+      </div>
+      <textarea class="qb-in" id="qbNotes" placeholder="📻 Type notes as you receive the call… (captured as job notes)" style="height:36px;resize:none;padding:4px 9px;line-height:1.5" onkeydown="if(event.key==='Enter'&&event.ctrlKey)quickLog()"></textarea>
+    </div>
+  </div>
+</div>
+
+
+<!-- Add unit dropdown -->
+<div id="addUnitMenu" style="position:fixed;background:var(--s1);border:1px solid var(--b1);border-radius:var(--r2);padding:4px;z-index:300;display:none;flex-direction:column;gap:2px;box-shadow:0 6px 20px rgba(0,0,0,.3);min-width:140px;">
+  <div class="au-opt" onclick="addUnitMidType('rover')">+ Rover</div>
+  <div class="au-opt" onclick="addUnitMidType('int')">+ Internal</div>
+  <div class="au-opt" onclick="addUnitMidType('ext')">+ External</div>
+</div>
+
+<!-- Notepad -->
+<div id="np">
+  <div class="np-hd" onclick="togNP()"><span class="np-t">📝 Scratch Pad</span><span class="np-arr">▲</span></div>
+  <textarea id="npTxt" placeholder="Event notes…" oninput="saveNP()"></textarea>
+</div>
+
+<!-- Units slide -->
+<div class="sl-ov" id="uSlOv" onclick="closeUnitsSlide()"></div>
+<div class="slide" id="uSlide" style="width:420px;max-width:100vw">
+  <div class="sl-hd">
+    <span class="sl-title">Manage Units</span>
+    <div style="display:flex;gap:5px;margin-left:auto">
+      <button class="btn sm ghost" onclick="addUnitMid('rover')">+ Rover</button>
+      <button class="btn sm ghost" onclick="addUnitMid('int')">+ Internal</button>
+      <button class="btn sm ghost" onclick="addUnitMid('ext')">+ External</button>
+    </div>
+    <span class="sl-x" onclick="closeUnitsSlide()">×</span>
+  </div>
+  <div class="sl-body" id="uSlBody"></div>
+</div>
+
+<!-- Customiser slide -->
+<div class="sl-ov" id="custOv" onclick="closeCust()"></div>
+<div class="slide" id="custSlide" style="width:275px">
+  <div class="sl-hd"><span class="sl-title">Display Settings</span><span class="sl-x" onclick="closeCust()">×</span></div>
+  <div class="sl-body">
+    <div class="cs-sec"><div class="cs-t">UI Font Size</div>
+      <div class="cr2"><label>All interface text</label><input type="range" class="csl" id="cUI" min="80" max="200" step="5" oninput="applyP('uiScale',+this.value);document.getElementById('cUIv').textContent=this.value+'%'"><span class="cr2-v" id="cUIv">100%</span></div>
+    </div>
+    <div class="cs-sec"><div class="cs-t">Map</div>
+      <div class="cr2"><label>Map opacity</label><input type="range" class="csl" id="cMO" min="10" max="100" step="5" oninput="applyP('mapOp',this.value/100);document.getElementById('cMOv').textContent=this.value+'%'"><span class="cr2-v" id="cMOv">100%</span></div>
+    </div>
+    <div class="cs-sec"><div class="cs-t">Pin Size</div>
+      <div class="cr2"><label>Radius</label><input type="range" class="csl" id="cPR" min="6" max="22" step="1" oninput="applyP('pinR',+this.value);document.getElementById('cPRv').textContent=this.value"><span class="cr2-v" id="cPRv">11</span></div>
+    </div>
+    <div class="cs-sec"><div class="cs-t">Labels</div>
+      <div class="cr2"><label>Font size</label><input type="range" class="csl" id="cLS" min="6" max="20" step="1" oninput="applyP('lblSz',+this.value);document.getElementById('cLSv').textContent=this.value"><span class="cr2-v" id="cLSv">9</span></div>
+      <div class="cr2"><label>Text colour</label><input type="color" class="ccol" id="cLC" oninput="applyP('lblCol',this.value)"></div>
+      <div class="cr2"><label>BG colour</label><input type="color" class="ccol" id="cBC" oninput="applyP('bgCol',this.value)"></div>
+      <div class="cr2"><label>BG opacity</label><input type="range" class="csl" id="cBO" min="0" max="100" step="5" oninput="applyP('bgOp',this.value/100);document.getElementById('cBOv').textContent=this.value+'%'"><span class="cr2-v" id="cBOv">72%</span></div>
+    </div>
+    <div class="cs-sec"><div class="cs-t">Visibility</div>
+      <div class="cr2"><label>Show timer</label><label class="tog"><input type="checkbox" id="cTim" onchange="applyP('showTimer',this.checked)"><div class="tog-tr"></div><div class="tog-th"></div></label></div>
+      <div class="cr2"><label>Show status</label><label class="tog"><input type="checkbox" id="cStat" onchange="applyP('showStat',this.checked)"><div class="tog-tr"></div><div class="tog-th"></div></label></div>
+      <div class="cr2"><label>30-min alert</label><label class="tog"><input type="checkbox" id="cW30" onchange="applyP('warn30',this.checked)"><div class="tog-tr"></div><div class="tog-th"></div></label></div>
+    </div>
+    <button class="btn ghost" style="width:100%" onclick="resetP()">↺ Reset defaults</button>
+  </div>
+</div>
+
+<!-- Modals -->
+
+<!-- Grid calibration modal -->
+<div class="mb" id="mGrid"><div class="modal" style="width:480px">
+  <div class="modal-title">Calibrate Grid Reference</div>
+  <div class="modal-sub">Set your grid dimensions, then drag the corner handles on the map to align with your site map's grid.</div>
+  <div class="fg" style="margin-bottom:12px">
+    <label class="fl">Grid Format</label>
+    <div style="display:flex;gap:6px">
+      <label style="display:flex;align-items:center;gap:6px;flex:1;background:var(--s2);border:1px solid var(--b1);border-radius:var(--r);padding:8px 10px;cursor:pointer" id="gFmtA">
+        <input type="radio" name="gOrient" value="LN" id="gOrientLN" checked onchange="updateGridPreview()" style="accent-color:var(--ac)">
+        <span><strong>A1</strong> — Letters across, numbers down</span>
+      </label>
+      <label style="display:flex;align-items:center;gap:6px;flex:1;background:var(--s2);border:1px solid var(--b1);border-radius:var(--r);padding:8px 10px;cursor:pointer" id="gFmtB">
+        <input type="radio" name="gOrient" value="NL" id="gOrientNL" onchange="updateGridPreview()" style="accent-color:var(--ac)">
+        <span><strong>1A</strong> — Numbers across, letters down</span>
+      </label>
+    </div>
+  </div>
+  <div class="frow">
+    <div class="fg">
+      <label class="fl" id="gColLbl">Columns — Letters (e.g. 8 = A–H)</label>
+      <input class="fi" type="number" id="gCols" value="10" min="1" max="60" oninput="updateGridPreview()">
+    </div>
+    <div class="fg">
+      <label class="fl" id="gRowLbl">Rows — Numbers (e.g. 10 = rows 1–10)</label>
+      <input class="fi" type="number" id="gRows" value="8" min="1" max="60" oninput="updateGridPreview()">
+    </div>
+  </div>
+  <div id="gPreview" style="font-family:var(--fm);font-size:.85em;color:var(--ac);margin-bottom:8px">Range: A1 → J8</div>
+  <div style="background:var(--ag);border:1px solid rgba(91,106,245,.2);border-radius:var(--r);padding:10px 12px;font-size:.92em;color:var(--sub);margin-bottom:4px">
+    After clicking Set Up Grid, two orange handles will appear on the map.<br>
+    <strong style="color:var(--tx)">Drag the top-left handle</strong> to the top-left corner of your grid.<br>
+    <strong style="color:var(--tx)">Drag the bottom-right handle</strong> to the bottom-right corner of your grid.<br>
+    Click <strong style="color:var(--tx)">Save Grid</strong> when aligned.
+  </div>
+  <div id="gStatus" style="font-size:.85em;color:var(--grn);margin-top:6px;display:none"></div>
+  <div class="modal-acts">
+    <button class="btn ghost" onclick="closeModal('mGrid')">Cancel</button>
+    <button class="btn danger xs" id="gClearBtn" onclick="clearGrid()" style="display:none">Clear Grid</button>
+    <button class="btn pri" onclick="startGridCalib()">Set Up Grid →</button>
+  </div>
+</div></div>
+
+<div class="mb" id="mFin"><div class="modal">
+  <div class="modal-title">Finalise Event</div>
+  <div class="modal-sub">Marks the event as ended. Data preserved, CSV still available.</div>
+  <div class="modal-acts">
+    <button class="btn ghost" onclick="closeModal('mFin')">Cancel</button>
+    <button class="btn danger" onclick="finalise()">Finalise</button>
+  </div>
+</div></div>
+
+<div class="mb" id="mNew"><div class="modal">
+  <div class="modal-title">Start New Event</div>
+  <div class="modal-sub">All data will be cleared. Export CSV first if needed.</div>
+  <div style="background:rgba(232,85,85,.07);border:1px solid rgba(232,85,85,.18);border-radius:var(--r);padding:8px 11px;color:var(--red);margin-bottom:4px">⚠ This cannot be undone.</div>
+  <div class="modal-acts">
+    <button class="btn ghost" onclick="closeModal('mNew')">Cancel</button>
+    <button class="btn sm ok" onclick="exportCSV()">↓ Export CSV first</button>
+    <button class="btn danger" onclick="confirmNew()">Clear &amp; Start New</button>
+  </div>
+</div></div>
+
+<div class="mb" id="mClose"><div class="modal">
+  <div class="modal-title">Close Job</div>
+  <div class="modal-sub" id="mCloseSub"></div>
+  <div class="fg"><label class="fl">Resolution Note</label><textarea class="fi" style="height:54px" id="closeNote" placeholder="How was it resolved?"></textarea></div>
+  <div class="fg" id="closeUF"><label class="fl">Update Unit Status</label>
+    <select class="fi" id="closeUSt">
+      <option value="roving">Roving (default)</option>
+      <option value="break">On Break</option>
+      <option value="offline">Offline</option>
+      <option value="other">Other</option>
+      <option value="">— Don't change —</option>
+    </select>
+  </div>
+  <div class="modal-acts">
+    <button class="btn ghost" onclick="closeModal('mClose')">Cancel</button>
+    <button class="btn ok" onclick="confirmClose()">Close Job</button>
+  </div>
+</div></div>
+
+<input type="file" id="mf" accept="image/*" onchange="loadMap(event)">
+
+<script>
+// ══════════════════════════════════════
+// CONSTANTS
+// ══════════════════════════════════════
+const PHON=['Alpha','Bravo','Charlie','Delta','Echo','Foxtrot','Golf','Hotel','India','Juliet','Kilo','Lima','Mike','November','Oscar','Papa','Quebec','Romeo','Sierra','Tango','Uniform','Victor','Whiskey','X-ray','Yankee','Zulu'];
+const STATUSES={roving:'Roving',break:'On Break',offline:'Offline',incident:'Incident',other:'Other',unassigned:'Unassigned'};
+const SP={incident:4,other:3,roving:2,break:1,offline:0,unassigned:0};
+const SEV={c:'Critical',h:'High',m:'Medium',l:'Low'};
+const SEVCOL={c:'#e85555',h:'#f07845',m:'#f0bc35',l:'#22c97a'};
+const STCOL={roving:'#22c97a',break:'#f0bc35',offline:'#363858',incident:'#e85555',other:'#a87dff',unassigned:'#7275a0'};
+const UNITCOLS=['#5b6af5','#4db8f5','#22c97a','#f0bc35','#e85555','#35d4f0','#a87dff','#f07845','#78d87a','#8aaaf5'];
+const SHAPES=['circle','diamond','square','star','triangle','hexagon','medical','security'];
+const SK='dwecc5_s', PSK='dwecc5_p', CK='dwecc5_c';
+const PDEF={uiScale:100,pinR:11,lblSz:9,lblCol:'#ffffff',bgCol:'#000000',bgOp:.72,showTimer:true,showStat:true,warn30:true,mapOp:1.0};
+let jobSeq=0;
+
+// ══════════════════════════════════════
+// STATE
+// ══════════════════════════════════════
+let S={name:'',start:null,done:false,dark:true,units:[],jobs:[],bg:null,qW:310,uW:188,notepad:'',grid:null};
+// grid: {cols,rows,x0,y0,x1,y1} — top-left and bottom-right corners in image coords
+// unit: {id,name,type(rover/int/ext),mem[],contact,status,color,shape,pos,trail[],since,activeJobId}
+// job: {id,seq,ts,unitId,caller,sum,notes,loc,sev,status(open/closed),flagged,thread[],pin,closedAt,resNote}
+let P={...PDEF};
+let cPool=[];
+let bgImg=null,pan={x:0,y:0},sc=1,isPan=false,panStart=null;
+let mapMode='select'; // select | pin | move
+let movingUid=null;
+let activeJobId=null; // job detail panel
+let pinSev=null,pinPos=null;
+let qbSev=null,viewTab='open',closingId=null,pendingRepinJobId=null;
+let editingUid=null; // in units slide
+let suList=[];
+
+const cv=document.getElementById('mc');
+const ctx=cv.getContext('2d');
+const mCol=document.getElementById('mCol');
+const lCol=document.getElementById('lCol');
+
+// ══════════════════════════════════════
+// PERSIST
+// ══════════════════════════════════════
+function sv(){try{localStorage.setItem(SK,JSON.stringify(S));}catch(e){}}
+function svP(){try{localStorage.setItem(PSK,JSON.stringify(P));}catch(e){}}
+function svC(){try{localStorage.setItem(CK,JSON.stringify(cPool));}catch(e){}}
+function ld(){
+  try{const r=localStorage.getItem(PSK);if(r)P={...PDEF,...JSON.parse(r)};}catch(e){}
+  try{const r=localStorage.getItem(CK);if(r)cPool=JSON.parse(r);}catch(e){}
+  try{const r=localStorage.getItem(SK);if(!r)return false;
+    S=JSON.parse(r);
+    jobSeq=S.jobs.reduce((m,j)=>Math.max(m,j.seq||0),0);
+    if(S.bg){const i=new Image();i.onload=()=>{bgImg=i;document.getElementById('mapEmp').classList.add('gone');fitMap();};i.src=S.bg;}
+    return true;}catch(e){return false;}
+}
+
+// ══════════════════════════════════════
+// CALLER POOL
+// ══════════════════════════════════════
+function addCP(n,c=''){n=n&&n.trim();if(!n||cPool.find(x=>x.n.toLowerCase()===n.toLowerCase()))return;cPool.push({n,c:c||''});svC();}
+function popUSel(ids){ids.forEach(id=>{const e=document.getElementById(id);if(!e)return;e.innerHTML='<option value="">— Unassigned —</option>';S.units.forEach(u=>{const o=document.createElement('option');o.value=u.id;o.textContent=u.name+(u.mem&&u.mem.length?' ('+u.mem.slice(0,2).join(', ')+')':'');e.appendChild(o);});const np=document.createElement('option');np.value='__new__';np.textContent='＋ Add new unit…';e.appendChild(np);});}
+function popCSel(ids){ids.forEach(id=>{const e=document.getElementById(id);if(!e)return;e.innerHTML='<option value="">— Select —</option>';cPool.forEach(c=>{const o=document.createElement('option');o.value=c.n;o.textContent=c.n+(c.c?' ('+c.c+')':'');e.appendChild(o);});const np=document.createElement('option');np.value='__new__';np.textContent='＋ Add new caller…';e.appendChild(np);});}
+function popLFilter(){const e=document.getElementById('lFilter');const cur=e.value;e.innerHTML='<option value="">All units</option>';S.units.forEach(u=>{const o=document.createElement('option');o.value=u.id;o.textContent=u.name;e.appendChild(o);});e.value=cur;}
+function popQBUnit(){const e=document.getElementById('qbUnit');const cur=e.value;e.innerHTML='<option value="">— No unit —</option>';S.units.forEach(u=>{const o=document.createElement('option');o.value=u.id;o.textContent=u.name;e.appendChild(o);});e.value=cur;}
+
+// ══════════════════════════════════════
+// SETUP
+// ══════════════════════════════════════
+function addSU(type){const ri=suList.filter(u=>u.type==='rover').length;suList.push({id:'su'+Date.now(),type,name:type==='rover'?PHON[ri]:'',m1:'',m2:''});renderSU();}
+function removeSU(id){suList=suList.filter(u=>u.id!==id);let ri=0;suList.forEach(u=>{if(u.type==='rover')u.name=PHON[ri++];});renderSU();}
+function renderSU(){
+  const el=document.getElementById('sUnits');el.innerHTML='';
+  document.getElementById('sCnt').textContent=suList.length;
+  suList.forEach(u=>{
+    const isExt=u.type==='ext',isRov=u.type==='rover';
+    const tl={rover:'Rover',int:'Internal',ext:'External'}[u.type]||u.type;
+    const d=document.createElement('div');d.className='ur';
+    d.innerHTML=`<span class="ur-cs">${u.name||'—'}</span>
+      <span class="ur-tag${isExt?' ext':''}">${tl}</span>
+      ${isRov?`<input class="ur-in" value="${u.name}" readonly style="opacity:.4">`:
+        `<input class="ur-in" placeholder="${isExt?'Organisation/role':'Name/callsign'}" value="${u.name}" oninput="suList.find(x=>x.id==='${u.id}').name=this.value">`}
+      <input class="ur-in" placeholder="${isExt?'Radio/contact (opt)':'Member 1'}" value="${u.m1}" oninput="suList.find(x=>x.id==='${u.id}').m1=this.value">
+      ${!isExt?`<input class="ur-in" placeholder="Member 2" value="${u.m2}" oninput="suList.find(x=>x.id==='${u.id}').m2=this.value">`:''}
+      <span class="ur-rm" onclick="removeSU('${u.id}')">×</span>`;
+    el.appendChild(d);
+  });
+}
+function goLive(){
+  const name=document.getElementById('sName').value.trim();if(!name){document.getElementById('sName').focus();return;}
+  S.name=name;S.start=Date.now();
+  let ri=0;
+  suList.forEach((u,i)=>{
+    const n=u.type==='rover'?PHON[ri++]:(u.name||`Unit ${i+1}`);
+    const isExt=u.type==='ext';
+    S.units.push({id:'u'+Date.now()+i,name:n,type:u.type,mem:isExt?[]:[u.m1,u.m2].filter(Boolean),contact:isExt?u.m1:'',status:'unassigned',color:UNITCOLS[i%UNITCOLS.length],shape:isExt?'diamond':(u.type==='rover'?'circle':'diamond'),pos:null,trail:[],since:Date.now(),activeJobId:null});
+    if(isExt)addCP(n,u.m1);
+  });
+  boot();sv();
+}
+
+// ══════════════════════════════════════
+// BOOT
+// ══════════════════════════════════════
+function boot(){
+  document.getElementById('setup').style.display='none';
+  document.getElementById('hdr').style.display='flex';
+  document.getElementById('app').style.display='flex';
+  document.getElementById('app').style.flexDirection='column';
+  document.getElementById('hName').textContent=S.name;
+  if(!S.dark)document.body.classList.add('lt');
+  document.getElementById('thBtn').textContent=S.dark?'☀':'🌙';
+  applyUI();
+  popUSel(['jUnit','vwUnit']);
+  popCSel(['jCaller','vwCaller']);
+  popLFilter();popQBUnit();
+  renderUnits();renderJobs();
+  applyQW();initResize();startClock();
+  if(S.notepad)document.getElementById('npTxt').value=S.notepad;
+  setTimeout(resizeCv,80);
+}
+window.addEventListener('load',()=>{if(ld()&&S.start)boot();});
+
+// ══════════════════════════════════════
+// RESIZE / CLOCK
+// ══════════════════════════════════════
+function applyQW(){
+  lCol.style.width=(S.qW||310)+'px';lCol.style.flexShrink='0';
+  const uc=document.getElementById('uCol');
+  if(uc){uc.style.width=(S.uW||188)+'px';uc.style.flexShrink='0';}
+}
+function initResize(){
+  // Queue col resize
+  const h=document.getElementById('rh');let dr=false,sx=0,sw=0;
+  h.addEventListener('mousedown',e=>{dr=true;sx=e.clientX;sw=lCol.offsetWidth;h.classList.add('drag');document.body.style.userSelect='none';e.preventDefault();});
+  document.addEventListener('mousemove',e=>{if(!dr)return;lCol.style.width=Math.max(220,Math.min(620,sw+(e.clientX-sx)))+'px';S.qW=lCol.offsetWidth;});
+  document.addEventListener('mouseup',()=>{if(dr){dr=false;h.classList.remove('drag');document.body.style.userSelect='';sv();}});
+  // Units col resize
+  const hu=document.getElementById('rhu');let dru=false,sxu=0,swu=0;
+  const uc=document.getElementById('uCol');
+  hu.addEventListener('mousedown',e=>{dru=true;sxu=e.clientX;swu=uc.offsetWidth;hu.classList.add('drag');document.body.style.userSelect='none';e.preventDefault();});
+  document.addEventListener('mousemove',e=>{if(!dru)return;uc.style.width=Math.max(140,Math.min(320,swu+(e.clientX-sxu)))+'px';S.uW=uc.offsetWidth;});
+  document.addEventListener('mouseup',()=>{if(dru){dru=false;hu.classList.remove('drag');document.body.style.userSelect='';sv();}});
+}
+function startClock(){setInterval(()=>{document.getElementById('hClk').textContent=new Date().toLocaleTimeString('en-AU',{hour12:false});renderUnits();redraw();},1000);}
+
+// ══════════════════════════════════════
+// CANVAS
+// ══════════════════════════════════════
+function resizeCv(){const r=mCol.getBoundingClientRect();cv.width=r.width;cv.height=r.height;redraw();}
+window.addEventListener('resize',resizeCv);
+function toW(sx,sy){return{x:(sx-pan.x)/sc,y:(sy-pan.y)/sc};}
+function fitMap(){if(!bgImg)return;sc=Math.min(cv.width/bgImg.width,cv.height/bgImg.height)*.94;pan.x=(cv.width-bgImg.width*sc)/2;pan.y=(cv.height-bgImg.height*sc)/2;redraw();}
+function zm(f){const cx=cv.width/2,cy=cv.height/2;pan.x=cx-(cx-pan.x)*f;pan.y=cy-(cy-pan.y)*f;sc*=f;redraw();}
+function setMapMode(m){
+  if(m!=='pin')pendingRepinJobId=null;
+  mapMode=m;movingUid=null;
+  ['select','pin','move'].forEach(x=>document.getElementById('mt-'+x).classList.toggle('on',x===m));
+  cv.style.cursor=m==='pin'?'crosshair':m==='move'?'grab':'default';
+  document.getElementById('mapHint').textContent=m==='pin'?'Click map to drop a pin and create a job':m==='move'?'Click a unit pin then click destination':'Select a unit pin or drop a new pin';
+}
+
+function redraw(){
+  ctx.clearRect(0,0,cv.width,cv.height);
+  ctx.save();ctx.translate(pan.x,pan.y);ctx.scale(sc,sc);
+  if(bgImg){ctx.save();ctx.globalAlpha=P.mapOp!=null?P.mapOp:1.0;ctx.drawImage(bgImg,0,0);ctx.globalAlpha=1.0;ctx.restore();}
+  // Trails
+  S.units.filter(u=>u.trail&&u.trail.length>1).forEach(u=>{ctx.beginPath();ctx.moveTo(u.trail[0].x,u.trail[0].y);u.trail.slice(1).forEach(p=>ctx.lineTo(p.x,p.y));ctx.strokeStyle=u.color+'25';ctx.lineWidth=2/sc;ctx.setLineDash([4/sc,4/sc]);ctx.stroke();ctx.setLineDash([]);});
+  // Job flag pins
+  S.jobs.filter(j=>j.status==='open'&&j.pin).forEach(j=>{const u=j.unitId?S.units.find(x=>x.id===j.unitId):null;if(!u||!u.pos)drawFlag(j);});
+  // Unit pins
+  S.units.filter(u=>u.pos).forEach(drawUPin);
+  // Grid calibration handles
+  drawGridHandles();
+  ctx.restore();
+}
+
+function drawUPin(u){
+  const {x,y}=u.pos;
+  const isSel=activeJobId&&S.jobs.find(j=>j.id===activeJobId)?.unitId===u.id;
+  const R=P.pinR||11,r=(isSel?R+3:R)/sc;
+  const aJob=u.activeJobId?S.jobs.find(j=>j.id===u.activeJobId&&j.status==='open'):null;
+  const wSev=aJob?.sev;
+  const is30=P.warn30&&aJob&&(Date.now()-new Date(aJob.ts).getTime())>1800000&&!aJob.thread.find(t=>(Date.now()-new Date(t.ts).getTime())<1800000);
+  // Glow
+  const gc=wSev==='c'?'rgba(232,85,85,.2)':wSev==='h'?'rgba(240,120,69,.15)':u.status==='incident'?'rgba(232,85,85,.13)':null;
+  if(gc){ctx.beginPath();ctx.arc(x,y,r+8/sc,0,Math.PI*2);ctx.fillStyle=gc;ctx.fill();}
+  // Pulse ring
+  if(wSev==='c'||u.status==='incident'){ctx.beginPath();ctx.arc(x,y,r+4/sc,0,Math.PI*2);ctx.strokeStyle='rgba(232,85,85,.5)';ctx.lineWidth=2/sc;ctx.stroke();}
+  else if(wSev==='h'){ctx.beginPath();ctx.arc(x,y,r+3/sc,0,Math.PI*2);ctx.strokeStyle='rgba(240,120,69,.45)';ctx.lineWidth=1.5/sc;ctx.stroke();}
+  if(is30){ctx.beginPath();ctx.arc(x,y,r+5/sc,0,Math.PI*2);ctx.strokeStyle='rgba(240,120,69,.6)';ctx.lineWidth=2/sc;ctx.setLineDash([5/sc,3/sc]);ctx.stroke();ctx.setLineDash([]);}
+  // Drop shadow
+  ctx.save();
+  ctx.shadowColor='rgba(0,0,0,.55)';ctx.shadowBlur=8/sc;ctx.shadowOffsetX=0;ctx.shadowOffsetY=2/sc;
+  ctx.fillStyle=u.color;drawShape(u.shape||'circle',x,y,r);ctx.fill();
+  ctx.restore();
+  // Border
+  ctx.strokeStyle='rgba(255,255,255,.85)';ctx.lineWidth=2/sc;drawShape(u.shape||'circle',x,y,r);ctx.stroke();
+  if(isSel){ctx.strokeStyle='#fff';ctx.lineWidth=3/sc;drawShape(u.shape||'circle',x,y,r);ctx.stroke();}
+  // Icon or letter
+  const sh=u.shape||'circle';
+  ctx.textAlign='center';ctx.textBaseline='middle';
+  if(sh==='medical'){
+    // White cross
+    const arm=r*.55,thick=r*.28;
+    ctx.fillStyle='#fff';
+    ctx.fillRect(x-thick,y-arm,thick*2,arm*2);
+    ctx.fillRect(x-arm,y-thick,arm*2,thick*2);
+  } else if(sh==='security'){
+    // White shield
+    const sf=r*.65;
+    ctx.beginPath();ctx.moveTo(x,y-sf);ctx.lineTo(x+sf*.75,y-sf*.3);ctx.lineTo(x+sf*.75,y+sf*.15);ctx.quadraticCurveTo(x+sf*.75,y+sf*.9,x,y+sf);ctx.quadraticCurveTo(x-sf*.75,y+sf*.9,x-sf*.75,y+sf*.15);ctx.lineTo(x-sf*.75,y-sf*.3);ctx.closePath();
+    ctx.fillStyle='rgba(255,255,255,.9)';ctx.fill();
+    // Small unit initial inside shield
+    const ls2=Math.max(5,R*.55)/sc;ctx.font=`bold ${ls2}px Inter,sans-serif`;
+    ctx.fillStyle=u.color;ctx.fillText(u.name[0].toUpperCase(),x,y+r*.08);
+  } else {
+    const ls=Math.max(7,R*.88)/sc;
+    ctx.font=`bold ${ls}px Inter,sans-serif`;
+    ctx.fillStyle=isLC(u.color)?'#07080f':'#fff';ctx.fillText(u.name[0].toUpperCase(),x,y);
+  }
+  // Labels
+  drawLabels(u,x,y,r,is30);
+  if(u.activeJobId){ctx.beginPath();ctx.arc(x+r*.65,y-r*.65,3.5/sc,0,Math.PI*2);ctx.fillStyle='#f0bc35';ctx.fill();}
+}
+
+function drawLabels(u,x,y,r,is30){
+  const lp=(P.lblSz||9)/sc,sp=lp*.85,hp=4/sc,vp=2.5/sc,gap=2.5/sc,pr=2.5/sc,bg=mkBG();
+  ctx.textAlign='center';ctx.textBaseline='middle';
+  let cy=y+r+4/sc;
+  function dp(txt,font,col,cy2){
+    ctx.font=font;const tw=ctx.measureText(txt).width,ph=lp+vp*2,pw=tw+hp*2,bx=x-pw/2,by=cy2-ph/2;
+    ctx.beginPath();ctx.moveTo(bx+pr,by);ctx.lineTo(bx+pw-pr,by);ctx.arcTo(bx+pw,by,bx+pw,by+pr,pr);ctx.lineTo(bx+pw,by+ph-pr);ctx.arcTo(bx+pw,by+ph,bx+pw-pr,by+ph,pr);ctx.lineTo(bx+pr,by+ph);ctx.arcTo(bx,by+ph,bx,by+ph-pr,pr);ctx.lineTo(bx,by+pr);ctx.arcTo(bx,by,bx+pr,by,pr);ctx.closePath();ctx.fillStyle=bg;ctx.fill();ctx.fillStyle=col;ctx.fillText(txt,x,cy2);return ph;
+  }
+  cy+=dp(u.name,`bold ${lp}px Inter,sans-serif`,P.lblCol||'#fff',cy+lp/2+vp)+gap;
+  if(P.showTimer!==false){cy+=dp(fmtD(Date.now()-u.since),`${sp}px JetBrains Mono,monospace`,u.color,cy+lp/2+vp)+gap;}
+  if(P.showStat!==false){dp(STATUSES[u.status]||u.status,`${sp}px JetBrains Mono,monospace`,u.color,cy+lp/2+vp);}
+  if(is30){const warn='⚠ 30m';ctx.font=`bold ${sp}px Inter,sans-serif`;const tw=ctx.measureText(warn).width,ph=lp+vp*2,pw=tw+hp*2,bx=x+r+4/sc,by=y-ph/2;ctx.beginPath();ctx.moveTo(bx+pr,by);ctx.lineTo(bx+pw-pr,by);ctx.arcTo(bx+pw,by,bx+pw,by+pr,pr);ctx.lineTo(bx+pw,by+ph-pr);ctx.arcTo(bx+pw,by+ph,bx+pw-pr,by+ph,pr);ctx.lineTo(bx+pr,by+ph);ctx.arcTo(bx,by+ph,bx,by+ph-pr,pr);ctx.lineTo(bx,by+pr);ctx.arcTo(bx,by,bx+pr,by,pr);ctx.closePath();ctx.fillStyle='rgba(240,120,69,.88)';ctx.fill();ctx.fillStyle='#07080f';ctx.fillText(warn,bx+pw/2,y);}
+}
+
+function drawFlag(j){
+  if(!j.pin)return;
+  const {x,y}=j.pin,fsz=(P.pinR||11)*0.9,sz=fsz/sc,col=SEVCOL[j.sev]||'#5b6af5';
+  ctx.beginPath();ctx.moveTo(x,y);ctx.lineTo(x,y-sz*2.2);ctx.strokeStyle=col;ctx.lineWidth=1.5/sc;ctx.stroke();
+  ctx.beginPath();ctx.moveTo(x,y-sz*2.2);ctx.lineTo(x+sz*1.4,y-sz*1.7);ctx.lineTo(x,y-sz*1.2);ctx.closePath();ctx.fillStyle=col;ctx.fill();
+  const lp=(P.lblSz||9)/sc,sp=lp*.85,hp=4/sc,vp=2.5/sc,pr=2.5/sc,bg=mkBG();
+  ctx.font=`bold ${lp}px Inter,sans-serif`;ctx.textAlign='center';ctx.textBaseline='middle';
+  const tw=ctx.measureText(j.sum).width,ph=lp+vp*2,pw=tw+hp*2,py=y+sz*.5,bx=x-pw/2,by=py-ph/2;
+  ctx.beginPath();ctx.moveTo(bx+pr,by);ctx.lineTo(bx+pw-pr,by);ctx.arcTo(bx+pw,by,bx+pw,by+pr,pr);ctx.lineTo(bx+pw,by+ph-pr);ctx.arcTo(bx+pw,by+ph,bx+pw-pr,by+ph,pr);ctx.lineTo(bx+pr,by+ph);ctx.arcTo(bx,by+ph,bx,by+ph-pr,pr);ctx.lineTo(bx,by+pr);ctx.arcTo(bx,by,bx+pr,by,pr);ctx.closePath();ctx.fillStyle=bg;ctx.fill();ctx.fillStyle=P.lblCol||'#fff';ctx.fillText(j.sum,x,py);
+  if(P.showTimer!==false){const age=fmtD(Date.now()-new Date(j.ts).getTime());ctx.font=`${sp}px JetBrains Mono,monospace`;const tw2=ctx.measureText(age).width,ph2=lp*.85+vp*2,pw2=tw2+hp*2,py2=py+ph*.55,by2=py2-ph2/2,bx2=x-pw2/2;ctx.beginPath();ctx.moveTo(bx2+pr,by2);ctx.lineTo(bx2+pw2-pr,by2);ctx.arcTo(bx2+pw2,by2,bx2+pw2,by2+pr,pr);ctx.lineTo(bx2+pw2,by2+ph2-pr);ctx.arcTo(bx2+pw2,by2+ph2,bx2+pw2-pr,by2+ph2,pr);ctx.lineTo(bx2+pr,by2+ph2);ctx.arcTo(bx2,by2+ph2,bx2,by2+ph2-pr,pr);ctx.lineTo(bx2,by2+pr);ctx.arcTo(bx2,by2,bx2+pr,by2,pr);ctx.closePath();ctx.fillStyle=bg;ctx.fill();ctx.fillStyle=col;ctx.fillText(age,x,py2);}
+}
+
+function mkBG(){const h=P.bgCol||'#000',op=P.bgOp!=null?P.bgOp:.72;return`rgba(${parseInt(h.slice(1,3),16)},${parseInt(h.slice(3,5),16)},${parseInt(h.slice(5,7),16)},${op})`;}
+function drawShape(s,x,y,r){
+  ctx.beginPath();
+  if(s==='circle')ctx.arc(x,y,r,0,Math.PI*2);
+  else if(s==='diamond'){ctx.moveTo(x,y-r);ctx.lineTo(x+r,y);ctx.lineTo(x,y+r);ctx.lineTo(x-r,y);ctx.closePath();}
+  else if(s==='square'){const rr=r*.2;ctx.moveTo(x-r+rr,y-r);ctx.lineTo(x+r-rr,y-r);ctx.arcTo(x+r,y-r,x+r,y-r+rr,rr);ctx.lineTo(x+r,y+r-rr);ctx.arcTo(x+r,y+r,x+r-rr,y+r,rr);ctx.lineTo(x-r+rr,y+r);ctx.arcTo(x-r,y+r,x-r,y+r-rr,rr);ctx.lineTo(x-r,y-r+rr);ctx.arcTo(x-r,y-r,x-r+rr,y-r,rr);ctx.closePath();}
+  else if(s==='star'){for(let i=0;i<5;i++){const a=-Math.PI/2+i*Math.PI*2/5,b=a+Math.PI/5;i===0?ctx.moveTo(x+r*Math.cos(a),y+r*Math.sin(a)):ctx.lineTo(x+r*Math.cos(a),y+r*Math.sin(a));ctx.lineTo(x+r*.42*Math.cos(b),y+r*.42*Math.sin(b));}ctx.closePath();}
+  else if(s==='triangle'){ctx.moveTo(x,y-r);ctx.lineTo(x+r*.87,y+r*.5);ctx.lineTo(x-r*.87,y+r*.5);ctx.closePath();}
+  else if(s==='hexagon'){for(let i=0;i<6;i++){const a=-Math.PI/2+i*Math.PI/3;i===0?ctx.moveTo(x+r*Math.cos(a),y+r*Math.sin(a)):ctx.lineTo(x+r*Math.cos(a),y+r*Math.sin(a));}ctx.closePath();}
+  else if(s==='medical'||s==='security'){ctx.arc(x,y,r,0,Math.PI*2);}// circle base, icon drawn separately
+}
+function isLC(h){const r=parseInt(h.slice(1,3),16),g=parseInt(h.slice(3,5),16),b=parseInt(h.slice(5,7),16);return(r*.299+g*.587+b*.114)>150;}
+function fmtD(ms){const s=Math.floor(ms/1000),m=Math.floor(s/60),h=Math.floor(m/60);if(h>0)return`${h}h${m%60}m`;if(m>0)return`${m}m`;return`${s}s`;}
+
+// ══════════════════════════════════════
+// CANVAS EVENTS
+// ══════════════════════════════════════
+cv.addEventListener('mousedown',e=>{
+  if(e.button===1||e.altKey){isPan=true;panStart={x:e.clientX,y:e.clientY};cv.style.cursor='grab';e.preventDefault();return;}
+  if(e.button!==0)return;
+  const rect=cv.getBoundingClientRect();
+  const w=toW(e.clientX-rect.left,e.clientY-rect.top);
+
+  // Grid handle dragging
+  if(gridCalib){
+    const gh=gridHandleAt(w.x,w.y);
+    if(gh){dragHandle=gh;gh.dragging=true;cv.style.cursor='move';e.preventDefault();return;}
+  }
+
+  if(mapMode==='pin'){
+    // If repinning an existing job, update its pin directly
+    if(pendingRepinJobId){
+      const rj=S.jobs.find(x=>x.id===pendingRepinJobId);
+      if(rj){
+        rj.pin={x:w.x,y:w.y};
+        rj.thread.push({ts:new Date().toISOString(),text:'📍 Pin location updated',audit:true});
+        sv();renderJobs();redraw();
+        openJobPanel(pendingRepinJobId);
+      }
+      pendingRepinJobId=null;
+      setMapMode('select');
+      return;
+    }
+    // Drop pin → show quick modal for new job
+    pinPos={x:w.x,y:w.y};pinSev=null;
+    // Auto-fill grid ref
+    if(S.grid){const gr=gridRefFromPos(w.x,w.y);if(gr)pinPos.gridRef=gr;}
+    document.querySelectorAll('.sv-pill').forEach(b=>b.classList.remove('on'));
+    document.getElementById('pmSum').value='';
+    const pm=document.getElementById('pinModal');
+    pm.style.left=Math.min(e.clientX-rect.left,rect.width-250)+'px';
+    pm.style.top=Math.min(e.clientY-rect.top,rect.height-160)+'px';
+    pm.classList.add('on');
+    document.getElementById('pmSum').focus();
+    return;
+  }
+
+  if(mapMode==='move'){
+    if(!movingUid){
+      // First click: pick unit
+      let hit=null;S.units.filter(u=>u.pos).forEach(u=>{if(Math.hypot(w.x-u.pos.x,w.y-u.pos.y)<16/sc)hit=u;});
+      if(hit){movingUid=hit.id;cv.style.cursor='crosshair';document.getElementById('mapHint').textContent='Now click destination for '+hit.name;}
+    } else {
+      // Second click: place
+      moveUnit(movingUid,w.x,w.y);movingUid=null;setMapMode('move');
+    }
+    return;
+  }
+
+  // Select mode
+  // Hit job flags
+  let hitJob=null;
+  S.jobs.filter(j=>j.status==='open'&&j.pin).forEach(j=>{if(Math.hypot(w.x-j.pin.x,w.y-j.pin.y)<14/sc)hitJob=j;});
+  if(hitJob){openJobPanel(hitJob.id);return;}
+  // Hit unit pins
+  let hitU=null;S.units.filter(u=>u.pos).forEach(u=>{if(Math.hypot(w.x-u.pos.x,w.y-u.pos.y)<16/sc)hitU=u;});
+  if(hitU){
+    // Open their active job, or create a new one
+    if(hitU.activeJobId){openJobPanel(hitU.activeJobId);}
+    else{openNewJob(hitU.id);}
+    return;
+  }
+  // Click empty map — close panel
+  closeJobPanel();
+});
+cv.addEventListener('mousemove',e=>{
+  if(isPan&&panStart){pan.x+=e.clientX-panStart.x;pan.y+=e.clientY-panStart.y;panStart={x:e.clientX,y:e.clientY};redraw();return;}
+  if(dragHandle){
+    const rect=cv.getBoundingClientRect();const w=toW(e.clientX-rect.left,e.clientY-rect.top);
+    dragHandle.x=w.x;dragHandle.y=w.y;redraw();return;
+  }
+  if(gridCalib&&gridHandleAt){
+    const rect=cv.getBoundingClientRect();const w=toW(e.clientX-rect.left,e.clientY-rect.top);
+    cv.style.cursor=gridHandleAt(w.x,w.y)?'move':'default';
+  }
+});
+cv.addEventListener('mouseup',()=>{if(isPan){isPan=false;cv.style.cursor=mapMode==='pin'?'crosshair':'default';panStart=null;}if(dragHandle){dragHandle.dragging=false;dragHandle=null;cv.style.cursor='default';}});
+cv.addEventListener('wheel',e=>{e.preventDefault();const r=cv.getBoundingClientRect(),mx=e.clientX-r.left,my=e.clientY-r.top,f=e.deltaY<0?1.1:.9;pan.x=mx-(mx-pan.x)*f;pan.y=my-(my-pan.y)*f;sc*=f;redraw();},{passive:false});
+
+// ══════════════════════════════════════
+// UNIT MOVEMENT
+// ══════════════════════════════════════
+function moveUnit(uid,wx,wy){
+  const u=S.units.find(x=>x.id===uid);if(!u)return;
+  const prev=u.pos?{...u.pos}:null;
+  if(u.pos){u.trail.push({...u.pos});if(u.trail.length>14)u.trail.shift();}
+  u.pos={x:wx,y:wy};u.since=Date.now();
+  // Log movement against active job
+  if(u.activeJobId){
+    const j=S.jobs.find(x=>x.id===u.activeJobId);
+    if(j){j.thread.push({ts:new Date().toISOString(),text:`${u.name} moved on map`,audit:true});refreshJobPanelThread(j);}
+  }
+  renderUnits();redraw();sv();
+}
+
+// ══════════════════════════════════════
+// PIN DROP → JOB
+// ══════════════════════════════════════
+function setPinSev(s){pinSev=s;document.querySelectorAll('.sv-pill').forEach(b=>b.classList.remove('on'));document.getElementById('pm-'+s).classList.add('on');}
+function cancelPin(){document.getElementById('pinModal').classList.remove('on');pinPos=null;pinSev=null;}
+function confirmPinJob(){
+  const sum=document.getElementById('pmSum').value.trim();if(!sum){document.getElementById('pmSum').focus();return;}
+  document.getElementById('pinModal').classList.remove('on');
+  const j=mkJob({sum,sev:pinSev,pin:{...pinPos},loc:pinPos.gridRef||''});
+  // Log it
+  j.thread.push({ts:new Date().toISOString(),text:`Job created via map pin drop`,audit:true});
+  openJobPanel(j.id);pinPos=null;pinSev=null;
+  setMapMode('select');
+}
+
+// ══════════════════════════════════════
+// JOB CREATION
+// ══════════════════════════════════════
+function mkJob({unitId,caller,sum,notes,loc,sev,pin,thread}){
+  jobSeq++;
+  const j={id:'j'+Date.now()+'_'+Math.random().toString(36).slice(2,4),seq:jobSeq,ts:new Date().toISOString(),unitId:unitId||null,caller:caller||'',sum:sum||'',notes:notes||'',loc:loc||'',sev:sev||null,status:'open',flagged:false,thread:thread||[],pin:pin||null,closedAt:null,resNote:''};
+  S.jobs.push(j);
+  if(j.unitId){assignUnit(j.unitId,j.id);}
+  sv();renderJobs();renderUnits();redraw();return j;
+}
+
+function assignUnit(uid,jid){
+  const u=S.units.find(x=>x.id===uid);if(!u)return;
+  // Warn if already on a job
+  if(u.activeJobId&&u.activeJobId!==jid){
+    // Log reassignment on old job
+    const old=S.jobs.find(x=>x.id===u.activeJobId);
+    if(old)old.thread.push({ts:new Date().toISOString(),text:`${u.name} reassigned to Job #${jobSeq}`,audit:true});
+    // Remove from old job
+    const oldJ=S.jobs.find(x=>x.id===u.activeJobId);
+    if(oldJ)oldJ.unitId=null;
+  }
+  u.activeJobId=jid;
+  u.status='incident'; // default when assigned; operator can change in job panel
+  u.since=Date.now();
+}
+
+function openNewJob(prefillUid){
+  // Create a blank job then open panel
+  const j=mkJob({unitId:prefillUid||null,sum:''});
+  openJobPanel(j.id,true);
+}
+
+// Quick log bar
+function setQS(s){qbSev=qbSev===s?null:s;document.querySelectorAll('.sv-dot').forEach(d=>d.classList.toggle('on',d.dataset.s===qbSev));}
+function quickLog(){
+  const sum=document.getElementById('qbSum').value.trim();
+  const notes=document.getElementById('qbNotes').value.trim();
+  if(!sum&&!notes){document.getElementById('qbNotes').focus();return;}
+  const uid=document.getElementById('qbUnit').value;
+  const j=mkJob({sum:sum||'Untitled — add title',notes,sev:qbSev,unitId:uid||null});
+  document.getElementById('qbSum').value='';
+  document.getElementById('qbNotes').value='';
+  qbSev=null;
+  document.querySelectorAll('.sv-dot').forEach(d=>d.classList.remove('on'));
+  openJobPanel(j.id);
+}
+function quickLogClose(){
+  const sum=document.getElementById('qbSum').value.trim();
+  const notes=document.getElementById('qbNotes').value.trim();
+  if(!sum&&!notes){document.getElementById('qbNotes').focus();return;}
+  const uid=document.getElementById('qbUnit').value;
+  const j=mkJob({sum:sum||'Info only',notes,sev:qbSev,unitId:uid||null});
+  // Immediately close with no resolution note needed
+  j.status='closed';j.closedAt=new Date().toISOString();j.resNote='';
+  j.thread.push({ts:new Date().toISOString(),text:'✓ Closed on creation — no follow-up required',audit:true});
+  // Free unit if assigned
+  if(j.unitId){const u=S.units.find(x=>x.id===j.unitId);if(u&&u.activeJobId===j.id){u.activeJobId=null;}}
+  document.getElementById('qbSum').value='';
+  document.getElementById('qbNotes').value='';
+  qbSev=null;
+  document.querySelectorAll('.sv-dot').forEach(d=>d.classList.remove('on'));
+  sv();renderJobs();renderUnits();redraw();
+}
+
+// ══════════════════════════════════════
+// JOB PANEL
+// ══════════════════════════════════════
+let jPanelDirty=false;
+function openJobPanel(id,isNew){
+  const j=S.jobs.find(x=>x.id===id);if(!j)return;
+  activeJobId=id;jPanelDirty=false;
+  document.getElementById('jpId').textContent='Job #'+j.seq;
+  document.getElementById('jpTitle').textContent=j.sum||'New Job';
+  // Chips
+  const chips=document.getElementById('jpChips');chips.innerHTML='';
+  if(j.sev){const sp=document.createElement('span');sp.className='j-sv '+j.sev;sp.textContent=SEV[j.sev];chips.appendChild(sp);}
+  if(j.flagged){const f=document.createElement('span');f.textContent='⚡';f.style.fontSize='.85em';chips.appendChild(f);}
+  if(j.status==='closed'){const c=document.createElement('span');c.style='font-size:.7em;padding:2px 6px;border-radius:3px;background:rgba(34,201,122,.1);color:var(--grn);font-family:var(--fm)';c.textContent='CLOSED';chips.appendChild(c);}
+  // Severity
+  ['c','h','m','l'].forEach(s=>document.getElementById('js'+s).classList.toggle('on',s===j.sev));
+  // Fields
+  document.getElementById('jSum').value=j.sum;
+  popUSel(['jUnit']);popCSel(['jCaller']);
+  document.getElementById('jUnit').value=j.unitId||'';
+  document.getElementById('jCaller').value=j.caller||'';
+  document.getElementById('jLoc').value=j.loc||'';
+  document.getElementById('jNotes').value=j.notes||'';
+  document.getElementById('jWarn').classList.remove('on');
+  document.getElementById('jUnitNew').classList.remove('on');
+  document.getElementById('jCallerNew').classList.remove('on');
+  refreshJobPanelThread(j);
+  // Footer buttons
+  const ft=document.getElementById('jpFt');ft.innerHTML='';
+  if(j.status==='open'){
+    const sb=document.createElement('button');sb.className='btn pri sm';sb.style.flex='1';sb.textContent='Save Changes';sb.onclick=saveJob;ft.appendChild(sb);
+    const fl=document.createElement('button');fl.className='btn xs ghost';fl.textContent=j.flagged?'⚡ Unflag':'⚡ Flag';fl.onclick=()=>{j.flagged=!j.flagged;j.thread.push({ts:new Date().toISOString(),text:j.flagged?'⚡ Marked urgent':'Flag removed',audit:true});sv();renderJobs();openJobPanel(id);};ft.appendChild(fl);
+    const pl=document.createElement('button');pl.className='btn xs ghost';pl.textContent=j.pin?'📍 Repin':'📍 Add Pin';
+    pl.onclick=()=>{
+      // Enter pin mode but keep job panel open; on next map click, update this job's pin
+      pendingRepinJobId=activeJobId;
+      setMapMode('pin');
+      document.getElementById('mapHint').textContent='Click map to '+(j.pin?'move':'place')+' pin for Job #'+j.seq;
+    };
+    ft.appendChild(pl);
+    const cl=document.createElement('button');cl.className='btn xs ok';cl.textContent='✓ Close Job';cl.onclick=()=>{saveJob();openCloseModal(id);};ft.appendChild(cl);
+  } else {
+    const rb=document.createElement('button');rb.className='btn sm ghost';rb.textContent='↩ Reopen';rb.onclick=()=>reopenJob(id);ft.appendChild(rb);
+  }
+  document.getElementById('jobPanel').classList.add('on');
+  renderUnits();redraw();
+}
+function refreshJobPanelThread(j){
+  const tl=document.getElementById('jpThread');tl.innerHTML='';
+  (j.thread||[]).forEach(t=>{const te=document.createElement('div');te.className='te'+(t.audit?' audit':'');te.innerHTML=`<div class="te-t">${new Date(t.ts).toLocaleTimeString('en-AU',{hour12:false})}</div><div class="te-b">${t.text}</div>`;tl.appendChild(te);});
+  tl.scrollTop=tl.scrollHeight;
+}
+function closeJobPanel(){
+  if(activeJobId&&jPanelDirty)saveJob();
+  document.getElementById('jobPanel').classList.remove('on');
+  activeJobId=null;renderUnits();redraw();
+}
+
+function setJSev(s){
+  const j=S.jobs.find(x=>x.id===activeJobId);if(!j)return;
+  j.sev=j.sev===s?null:s;
+  ['c','h','m','l'].forEach(k=>document.getElementById('js'+k).classList.toggle('on',k===j.sev));
+  jPanelDirty=true;
+}
+function onJUnit(){
+  const v=document.getElementById('jUnit').value;
+  document.getElementById('jUnitNew').classList.toggle('on',v==='__new__');
+  if(v&&v!=='__new__'){
+    const j=S.jobs.find(x=>x.id===activeJobId);
+    const oldUid=j?.unitId;
+    if(oldUid&&oldUid!==v){
+      const u=S.units.find(x=>x.id===oldUid);
+      document.getElementById('jWarn').textContent=`⚠ This will reassign from ${u?.name||'current unit'}`;
+      document.getElementById('jWarn').classList.add('on');
+    } else document.getElementById('jWarn').classList.remove('on');
+  } else document.getElementById('jWarn').classList.remove('on');
+  jPanelDirty=true;
+}
+function onJCaller(){document.getElementById('jCallerNew').classList.toggle('on',document.getElementById('jCaller').value==='__new__');jPanelDirty=true;}
+function addUnitFromJ(){const n=document.getElementById('jUNN').value.trim(),c=document.getElementById('jUNC').value.trim();if(!n)return;const u=mkExtUnit(n,c);document.getElementById('jUnit').value=u.id;['jUNN','jUNC'].forEach(i=>document.getElementById(i).value='');document.getElementById('jUnitNew').classList.remove('on');}
+function addCallerFromJ(){const n=document.getElementById('jCNN').value.trim(),c=document.getElementById('jCNC').value.trim();if(!n)return;addCP(n,c);popCSel(['jCaller','vwCaller']);document.getElementById('jCaller').value=n;['jCNN','jCNC'].forEach(i=>document.getElementById(i).value='');document.getElementById('jCallerNew').classList.remove('on');}
+function mkExtUnit(n,c){const idx=S.units.length;const u={id:'u'+Date.now(),name:n,type:'ext',mem:[],contact:c||'',status:'unassigned',color:UNITCOLS[idx%UNITCOLS.length],shape:'diamond',pos:null,trail:[],since:Date.now(),activeJobId:null};S.units.push(u);addCP(n,c);popUSel(['jUnit','vwUnit']);popLFilter();popQBUnit();renderUnits();sv();return u;}
+
+function addThread(){
+  const text=document.getElementById('jpUpd').value.trim();if(!text)return;
+  const j=S.jobs.find(x=>x.id===activeJobId);if(!j)return;
+  j.thread.push({ts:new Date().toISOString(),text,audit:false});
+  document.getElementById('jpUpd').value='';
+  refreshJobPanelThread(j);sv();renderJobs();
+}
+
+function saveJob(){
+  const j=S.jobs.find(x=>x.id===activeJobId);if(!j)return;
+  const newSum=document.getElementById('jSum').value.trim();
+  const newUid=document.getElementById('jUnit').value,cv2=document.getElementById('jCaller').value;
+  const newCaller=cv2&&cv2!=='__new__'?cv2:'';
+  const newLoc=document.getElementById('jLoc').value.trim(),newNotes=document.getElementById('jNotes').value.trim();
+  const ch=[];
+  if(j.sum!==newSum&&newSum)ch.push(`Summary: "${newSum}"`);
+  if(newCaller&&j.caller!==newCaller)ch.push(`Caller: ${newCaller}`);
+  if(j.loc!==newLoc&&newLoc)ch.push(`Location: ${newLoc}`);
+  const oldUid=j.unitId,resolvedUid=newUid&&newUid!=='__new__'?newUid:null;
+  if(oldUid!==resolvedUid){
+    const oUN=oldUid?S.units.find(x=>x.id===oldUid)?.name:'None';
+    const nUN=resolvedUid?S.units.find(x=>x.id===resolvedUid)?.name:'None';
+    ch.push(`Unit: ${oUN} → ${nUN}`);
+    // Unassign old
+    if(oldUid){const ou=S.units.find(x=>x.id===oldUid);if(ou&&ou.activeJobId===j.id){ou.activeJobId=null;ou.status='unassigned';ou.since=Date.now();}}
+    // Assign new
+    if(resolvedUid)assignUnit(resolvedUid,j.id);
+    j.unitId=resolvedUid;
+  }
+  if(newSum)j.sum=newSum;
+  if(newCaller){j.caller=newCaller;addCP(newCaller);}
+  j.loc=newLoc;j.notes=newNotes;
+  if(ch.length)j.thread.push({ts:new Date().toISOString(),text:'✏ '+ch.join(' · '),audit:true});
+  // Update panel title
+  document.getElementById('jpTitle').textContent=j.sum||'Job';
+  document.getElementById('jpId').textContent='Job #'+j.seq;
+  jPanelDirty=false;
+  sv();renderJobs();renderUnits();redraw();
+  refreshJobPanelThread(j);
+}
+
+// ══════════════════════════════════════
+// CLOSE / REOPEN JOB
+// ══════════════════════════════════════
+function openCloseModal(id){
+  closingId=id;const j=S.jobs.find(x=>x.id===id);
+  document.getElementById('mCloseSub').textContent=j?j.sum:'';
+  document.getElementById('closeNote').value='';
+  document.getElementById('closeUSt').value='roving';
+  document.getElementById('closeUF').style.display=j?.unitId?'block':'none';
+  openModal('mClose');
+}
+function confirmClose(){
+  const j=S.jobs.find(x=>x.id===closingId);if(!j)return;
+  const note=document.getElementById('closeNote').value.trim();
+  j.status='closed';j.closedAt=new Date().toISOString();j.resNote=note;j.pin=null;
+  if(note)j.thread.push({ts:new Date().toISOString(),text:'✓ Closed — '+note,audit:true});
+  if(j.unitId){
+    const ns=document.getElementById('closeUSt').value;
+    const u=S.units.find(x=>x.id===j.unitId);
+    if(u){u.activeJobId=null;if(ns){u.status=ns;u.since=Date.now();}}
+  }
+  sv();renderJobs();renderUnits();redraw();
+  if(activeJobId===closingId)closeJobPanel();
+  closeModal('mClose');
+}
+function reopenJob(id){
+  const j=S.jobs.find(x=>x.id===id);if(!j)return;
+  j.status='open';j.closedAt=null;
+  j.thread.push({ts:new Date().toISOString(),text:'↩ Reopened',audit:true});
+  if(j.unitId){const u=S.units.find(x=>x.id===j.unitId);if(u)u.activeJobId=j.id;}
+  sv();renderJobs();renderUnits();openJobPanel(id);
+}
+
+// ══════════════════════════════════════
+// RENDER JOBS
+// ══════════════════════════════════════
+function setTab(t){viewTab=t;document.getElementById('tab-open').classList.toggle('on',t==='open');document.getElementById('tab-all').classList.toggle('on',t==='all');renderJobs();}
+function renderJobs(){
+  const feed=document.getElementById('lFeed');feed.innerHTML='';
+  const fuid=document.getElementById('lFilter')?.value||'';
+  let jobs=[...S.jobs];
+  if(viewTab==='open')jobs=jobs.filter(j=>j.status==='open');
+  if(fuid)jobs=jobs.filter(j=>j.unitId===fuid);
+  jobs.sort((a,b)=>{if(a.flagged&&!b.flagged)return -1;if(!a.flagged&&b.flagged)return 1;return new Date(b.ts)-new Date(a.ts);});
+  document.getElementById('lCnt').textContent=jobs.length;
+  document.getElementById('lEmpty').style.display=jobs.length?'none':'flex';
+  feed.style.flex=jobs.length?'1':'0';
+  jobs.forEach(j=>feed.appendChild(mkCard(j)));
+}
+function mkCard(j){
+  const unit=j.unitId?S.units.find(u=>u.id===j.unitId):null;
+  const el=document.createElement('div');
+  el.className=`jc${j.flagged?' flagged':(j.sev?' sv-'+j.sev:'')}${j.status==='closed'?' closed':''}${j.id===activeJobId?' hl':''}`;
+  el.id='jc-'+j.id;
+  const t=new Date(j.ts).toLocaleTimeString('en-AU',{hour12:false,hour:'2-digit',minute:'2-digit'});
+  el.innerHTML=`<div class="j-top">
+    <span class="j-id">#${j.seq}</span>
+    <span class="j-time">${t}</span>
+    ${j.sev?`<span class="j-sv ${j.sev}">${SEV[j.sev]}</span>`:''}
+    ${j.pin?'<span class="j-pin">📍</span>':''}
+    <span class="j-flag ${j.flagged?'on':''}" onclick="togFlag('${j.id}',event)">⚡</span>
+    ${unit?`<span class="j-unit" style="background:${unit.color}20;color:${unit.color}">${unit.name}</span>`:''}
+  </div>
+  <div class="j-title">${j.sum||'—'}</div>
+  ${j.caller?`<div class="j-meta">From: ${j.caller}</div>`:''}
+  ${j.loc?`<div class="j-meta">📍 ${j.loc}</div>`:''}
+  ${j.thread.length?`<div class="j-tn">💬 ${j.thread.length} update${j.thread.length>1?'s':''}</div>`:''}
+  ${j.status==='closed'&&j.resNote?`<div class="j-closed-note">✓ ${j.resNote}</div>`:''}`;
+  el.onclick=e=>{if(e.target.classList.contains('j-flag'))return;openJobPanel(j.id);};
+  return el;
+}
+function togFlag(id,e){e.stopPropagation();const j=S.jobs.find(x=>x.id===id);if(!j)return;j.flagged=!j.flagged;j.thread.push({ts:new Date().toISOString(),text:j.flagged?'⚡ Marked urgent':'Flag removed',audit:true});sv();renderJobs();if(activeJobId===id)openJobPanel(id);}
+
+// ══════════════════════════════════════
+// RENDER UNITS
+// ══════════════════════════════════════
+function renderUnits(){
+  const list=document.getElementById('uList');list.innerHTML='';
+  document.getElementById('uCnt').textContent=S.units.length;
+  const int=S.units.filter(u=>!u.type?.includes('ext')).sort((a,b)=>(SP[b.status]||0)-(SP[a.status]||0));
+  const ext=S.units.filter(u=>u.type==='ext');
+  [...int,...ext].forEach(u=>{
+    const aJ=u.activeJobId?S.jobs.find(j=>j.id===u.activeJobId&&j.status==='open'):null;
+    const wSev=aJ?.sev;
+    const is30=P.warn30&&aJ&&(Date.now()-new Date(aJ.ts).getTime())>1800000&&!aJ.thread.find(t=>(Date.now()-new Date(t.ts).getTime())<1800000);
+    let cls='uc sc-'+u.status;
+    if(wSev==='c'||u.status==='incident')cls+=' u-inc';
+    else if(is30)cls+=' u-w30';
+    const activeJobChosen=activeJobId&&S.jobs.find(j=>j.id===activeJobId)?.unitId===u.id;
+    if(activeJobChosen)cls+=' sel';
+    const card=document.createElement('div');card.className=cls;
+    const oJ=S.jobs.filter(j=>j.unitId===u.id&&j.status==='open');
+    card.innerHTML=`<div class="uc-top">
+      <div class="uc-dot"></div>
+      <div class="uc-name" style="color:${u.color}">${u.name}</div>
+      <div class="uc-badge">${STATUSES[u.status]||u.status}</div>
+    </div>
+    <div class="uc-mem">${u.type==='ext'?(u.contact||'External'):(u.mem.join(', ')||'No members')}</div>
+    ${!u.type.includes('ext')?`<div class="uc-meta">${u.pos?'📍 On map':'📍 Not placed'} · ${fmtD(Date.now()-u.since)}</div>`:''}
+    ${oJ.length?`<div class="uc-wo">📋 Job #${oJ[0].seq}${oJ.length>1?' +'+( oJ.length-1)+' more':''}</div>`:''}
+    ${is30?`<div class="uc-warn">⚠ 30m+ on job</div>`:''}`;
+    card.onclick=()=>openUnitPanel(u.id);
+    list.appendChild(card);
+  });
+}
+
+
+// ══════════════════════════════════════
+// UNIT DETAIL PANEL
+// ══════════════════════════════════════
+let uPanelUid=null;
+
+function openUnitPanel(uid){
+  const u=S.units.find(x=>x.id===uid);if(!u)return;
+  uPanelUid=uid;
+  document.getElementById('up2Name').textContent=u.name;
+  // Status buttons
+  ['roving','break','offline','incident','other'].forEach(s=>{
+    document.getElementById('upst-'+s)?.classList.toggle('on',s===u.status);
+  });
+  document.getElementById('up2StTime').textContent='In current status: '+fmtD(Date.now()-u.since);
+  // Members
+  document.getElementById('up2M1').value=u.mem[0]||'';
+  document.getElementById('up2M2').value=u.mem[1]||u.contact||'';
+  // Appearance (hide for ext if desired, but show anyway)
+  buildUPanelColors(u);buildUPanelShapes(u);
+  // Active job
+  const aJ=u.activeJobId?S.jobs.find(j=>j.id===u.activeJobId&&j.status==='open'):null;
+  const activeDiv=document.getElementById('up2ActiveJob');
+  const activeCard=document.getElementById('up2ActiveJobCard');
+  if(aJ){
+    activeDiv.style.display='block';
+    activeCard.innerHTML=`<div class="up2-job sv-${aJ.sev||''}" onclick="openJobPanel('${aJ.id}')">
+      <div class="up2-job-top"><span style="font-family:var(--fm);font-size:.7em;color:var(--dim)">#${aJ.seq}</span>${aJ.sev?`<span class="j-sv ${aJ.sev}">${SEV[aJ.sev]}</span>`:''}</div>
+      <div style="font-size:.92em;font-weight:600">${aJ.sum}</div>
+      ${aJ.loc?`<div style="font-size:.82em;color:var(--sub)">📍 ${aJ.loc}</div>`:''}
+    </div>`;
+  } else {
+    activeDiv.style.display='none';
+  }
+  // Job history
+  const histDiv=document.getElementById('up2Jobs');
+  const unitJobs=[...S.jobs].filter(j=>j.unitId===uid).sort((a,b)=>new Date(b.ts)-new Date(a.ts));
+  if(!unitJobs.length){histDiv.innerHTML='<div style="font-size:.85em;color:var(--dim)">No jobs yet</div>';}
+  else{
+    histDiv.innerHTML='';
+    unitJobs.slice(0,10).forEach(j=>{
+      const d=document.createElement('div');
+      d.className='up2-job'+(j.sev?' sv-'+j.sev:'')+(j.status==='closed'?' closed':'');
+      const t=new Date(j.ts).toLocaleTimeString('en-AU',{hour12:false,hour:'2-digit',minute:'2-digit'});
+      d.innerHTML=`<div class="up2-job-top">
+        <span style="font-family:var(--fm);font-size:.7em;color:var(--dim)">#${j.seq}</span>
+        <span style="font-family:var(--fm);font-size:.7em;color:var(--dim)">${t}</span>
+        ${j.sev?`<span class="j-sv ${j.sev}">${SEV[j.sev]}</span>`:''}
+        ${j.status==='closed'?'<span style="font-size:.7em;color:var(--grn);font-family:var(--fm)">✓ closed</span>':'<span style="font-size:.7em;color:var(--yel);font-family:var(--fm)">● open</span>'}
+      </div>
+      <div style="font-size:.92em;font-weight:600">${j.sum}</div>`;
+      d.onclick=()=>openJobPanel(j.id);
+      histDiv.appendChild(d);
+    });
+  }
+  document.getElementById('uPanel').classList.add('on');
+  renderUnits();
+}
+
+function closeUnitPanel(){
+  document.getElementById('uPanel').classList.remove('on');
+  uPanelUid=null;renderUnits();
+}
+
+function setUnitStatus(s){
+  const u=S.units.find(x=>x.id===uPanelUid);if(!u)return;
+  const prev=STATUSES[u.status]||u.status;
+  const next=STATUSES[s]||s;
+  if(u.status===s)return; // no change
+  u.status=s;u.since=Date.now();
+  ['roving','break','offline','incident','other'].forEach(k=>{
+    document.getElementById('upst-'+k)?.classList.toggle('on',k===s);
+  });
+  document.getElementById('up2StTime').textContent='In current status: 0s';
+  // Auto-create and close a status-change log entry
+  jobSeq++;
+  const logJob={id:'j'+Date.now()+'_st',seq:jobSeq,ts:new Date().toISOString(),
+    unitId:u.id,caller:'',sum:`${u.name} — ${prev} → ${next}`,
+    notes:'Status change',loc:'',sev:null,status:'closed',flagged:false,
+    thread:[{ts:new Date().toISOString(),text:`Status changed: ${prev} → ${next}`,audit:true},
+            {ts:new Date().toISOString(),text:'✓ Closed on creation — status log',audit:true}],
+    pin:null,closedAt:new Date().toISOString(),resNote:'Status log'};
+  S.jobs.push(logJob);
+  renderUnits();renderJobs();redraw();sv();
+}
+
+function saveUnitMem(){
+  const u=S.units.find(x=>x.id===uPanelUid);if(!u)return;
+  const m1=document.getElementById('up2M1').value.trim();
+  const m2=document.getElementById('up2M2').value.trim();
+  u.mem=[m1,m2].filter(Boolean);
+  renderUnits();sv();
+}
+
+function buildUPanelColors(u){
+  const row=document.getElementById('up2Cols');row.innerHTML='';
+  UNITCOLS.forEach(col=>{
+    const s=document.createElement('div');s.className='cp'+(u.color===col?' on':'');
+    s.style.background=col;
+    s.onclick=()=>{row.querySelectorAll('.cp').forEach(x=>x.classList.remove('on'));s.classList.add('on');u.color=col;renderUnits();redraw();sv();};
+    row.appendChild(s);
+  });
+}
+
+function buildUPanelShapes(u){
+  const row=document.getElementById('up2Shps');row.innerHTML='';
+  const si={circle:'●',diamond:'◆',square:'■',star:'★',triangle:'▲',hexagon:'⬡',medical:'✚',security:'🛡'};
+  SHAPES.forEach(sh=>{
+    const b=document.createElement('div');
+    b.className='shp'+((u.shape||'circle')===sh?' on':'');
+    b.textContent=si[sh]||sh[0];
+    b.title=sh.charAt(0).toUpperCase()+sh.slice(1);
+    b.onclick=()=>{row.querySelectorAll('.shp').forEach(x=>x.classList.remove('on'));b.classList.add('on');u.shape=sh;redraw();sv();};
+    row.appendChild(b);
+  });
+}
+
+function openNewJobForUnit(){
+  const uid=uPanelUid;
+  closeUnitPanel();
+  openNewJob(uid);
+}
+
+// Add unit menu
+function openAddUnitMenu(e){
+  const m=document.getElementById('addUnitMenu');
+  m.style.display='flex';
+  const r=e.target.getBoundingClientRect();
+  m.style.left=r.left+'px';
+  m.style.top=(r.bottom+4)+'px';
+  setTimeout(()=>document.addEventListener('click',closeAddUnitMenu,{once:true}),50);
+}
+function closeAddUnitMenu(){document.getElementById('addUnitMenu').style.display='none';}
+function addUnitMidType(type){
+  closeAddUnitMenu();
+  addUnitMid(type);
+}
+
+// ══════════════════════════════════════
+// UNITS SLIDE (manage)
+// ══════════════════════════════════════
+function openUnitsSlide(){renderUnitsSlide();document.getElementById('uSlide').classList.add('on');document.getElementById('uSlOv').classList.add('on');}
+function closeUnitsSlide(){document.getElementById('uSlide').classList.remove('on');document.getElementById('uSlOv').classList.remove('on');editingUid=null;}
+function renderUnitsSlide(){
+  const body=document.getElementById('uSlBody');body.innerHTML='';
+  S.units.forEach(u=>{
+    const row=document.createElement('div');row.className='us-row';
+    const tl={rover:'Rover',int:'Internal',ext:'External'}[u.type]||u.type;
+    row.innerHTML=`<div class="us-dot" style="background:${u.color}"></div>
+      <div style="flex:1"><div class="us-name">${u.name}</div>
+      <div class="us-mem">${u.mem.join(', ')||u.contact||'—'}</div></div>
+      <div class="us-type">${tl}</div>`;
+    row.onclick=()=>toggleUnitEdit(u.id,body,row);
+    body.appendChild(row);
+    // Edit panel placeholder
+    const ep=document.createElement('div');ep.id='uep-'+u.id;ep.className='';body.appendChild(ep);
+  });
+}
+function addUnitMid(type){
+  const ri=S.units.filter(u=>u.type==='rover').length;
+  const name=type==='rover'?PHON[ri]:'';
+  const idx=S.units.length;
+  S.units.push({id:'u'+Date.now(),name,type,mem:[],contact:'',status:'unassigned',color:UNITCOLS[idx%UNITCOLS.length],shape:type==='rover'?'circle':'diamond',pos:null,trail:[],since:Date.now(),activeJobId:null});
+  popUSel(['jUnit','vwUnit']);popLFilter();popQBUnit();renderUnits();sv();renderUnitsSlide();
+}
+function toggleUnitEdit(uid,body,row){
+  if(editingUid===uid){const ep=document.getElementById('uep-'+uid);if(ep){ep.className='';ep.innerHTML='';}editingUid=null;return;}
+  // Close any open
+  if(editingUid){const old=document.getElementById('uep-'+editingUid);if(old){old.className='';old.innerHTML='';}}
+  editingUid=uid;
+  const u=S.units.find(x=>x.id===uid);if(!u)return;
+  const ep=document.getElementById('uep-'+uid);if(!ep)return;
+  ep.className='';
+  ep.innerHTML=`<div id="uEditPanel" class="on" style="margin-bottom:6px">
+    <div style="display:flex;gap:8px;margin-bottom:8px">
+      <div style="flex:1"><label class="fl">Name</label><input class="fi" id="uen-${uid}" value="${u.name}" oninput="updUField('${uid}','name',this.value)"></div>
+      <div style="flex:1"><label class="fl">Member 1</label><input class="fi" id="uem1-${uid}" value="${u.mem[0]||''}" oninput="updUField('${uid}','mem0',this.value)"></div>
+      <div style="flex:1"><label class="fl">Member 2</label><input class="fi" id="uem2-${uid}" value="${u.mem[1]||''}" oninput="updUField('${uid}','mem1',this.value)"></div>
+    </div>
+    <div style="margin-bottom:6px"><label class="fl">Colour</label>
+      <div class="color-row" id="ucr-${uid}"></div>
+    </div>
+    <div style="margin-bottom:8px"><label class="fl">Pin Shape</label>
+      <div class="shape-row" id="usr-${uid}"></div>
+    </div>
+    <button class="btn xs danger" onclick="removeUnit('${uid}')">Remove Unit</button>
+  </div>`;
+  // Build colour row
+  const cr=document.getElementById('ucr-'+uid);
+  UNITCOLS.forEach(c=>{const s=document.createElement('div');s.className='cp'+(u.color===c?' on':'');s.style.background=c;s.onclick=()=>{cr.querySelectorAll('.cp').forEach(x=>x.classList.remove('on'));s.classList.add('on');u.color=c;renderUnits();redraw();sv();};cr.appendChild(s);});
+  // Build shape row
+  const sr=document.getElementById('usr-'+uid);
+  const si={circle:'●',diamond:'◆',square:'■',star:'★',triangle:'▲',hexagon:'⬡',medical:'✚',security:'🛡'};
+  SHAPES.forEach(sh=>{const b=document.createElement('div');b.className='shp'+((u.shape||'circle')===sh?' on':'');b.textContent=si[sh];b.onclick=()=>{sr.querySelectorAll('.shp').forEach(x=>x.classList.remove('on'));b.classList.add('on');u.shape=sh;redraw();sv();};sr.appendChild(b);});
+}
+function updUField(uid,field,val){
+  const u=S.units.find(x=>x.id===uid);if(!u)return;
+  if(field==='name')u.name=val;
+  else if(field==='mem0'){u.mem[0]=val;u.mem=u.mem.filter(Boolean);}
+  else if(field==='mem1'){u.mem[1]=val;u.mem=u.mem.filter(Boolean);}
+  renderUnits();popUSel(['jUnit']);popLFilter();popQBUnit();sv();
+}
+function removeUnit(uid){
+  if(!confirm('Remove this unit?'))return;
+  S.units=S.units.filter(x=>x.id!==uid);
+  S.jobs.forEach(j=>{if(j.unitId===uid)j.unitId=null;});
+  renderUnits();popUSel(['jUnit']);popLFilter();popQBUnit();sv();renderUnitsSlide();
+}
+
+// ══════════════════════════════════════
+// CUSTOMISER
+// ══════════════════════════════════════
+function openCust(){document.getElementById('cUI').value=P.uiScale||100;document.getElementById('cUIv').textContent=(P.uiScale||100)+'%';const mo=Math.round((P.mapOp!=null?P.mapOp:1)*100);document.getElementById('cMO').value=mo;document.getElementById('cMOv').textContent=mo+'%';document.getElementById('cPR').value=P.pinR||11;document.getElementById('cPRv').textContent=P.pinR||11;document.getElementById('cLS').value=P.lblSz||9;document.getElementById('cLSv').textContent=P.lblSz||9;document.getElementById('cLC').value=P.lblCol||'#ffffff';document.getElementById('cBC').value=P.bgCol||'#000000';const op=Math.round((P.bgOp!=null?P.bgOp:.72)*100);document.getElementById('cBO').value=op;document.getElementById('cBOv').textContent=op+'%';document.getElementById('cTim').checked=P.showTimer!==false;document.getElementById('cStat').checked=P.showStat!==false;document.getElementById('cW30').checked=P.warn30!==false;document.getElementById('custSlide').classList.add('on');document.getElementById('custOv').classList.add('on');}
+function closeCust(){document.getElementById('custSlide').classList.remove('on');document.getElementById('custOv').classList.remove('on');}
+function applyP(k,v){P[k]=v;if(k==='uiScale')applyUI();svP();redraw();}
+function applyUI(){document.body.style.fontSize=((P.uiScale||100)/100*13)+'px';}
+function resetP(){P={...PDEF};svP();openCust();redraw();}
+
+// ══════════════════════════════════════
+// NOTEPAD
+// ══════════════════════════════════════
+let npOpen=false;
+function togNP(){npOpen=!npOpen;document.getElementById('np').classList.toggle('open',npOpen);}
+function saveNP(){S.notepad=document.getElementById('npTxt').value;sv();}
+
+
+// ══════════════════════════════════════
+// GRID CALIBRATION
+// ══════════════════════════════════════
+let gridCalib=false; // are we in calibration mode?
+let gridHandles=[]; // [{x,y,corner:'tl'|'br',dragging:false}]
+let dragHandle=null;
+
+function colName(i){
+  // Spreadsheet-style: 0=A,1=B,...,25=Z,26=AA,27=AB...
+  let s='';i++;
+  while(i>0){const r=(i-1)%26;s=String.fromCharCode(65+r)+s;i=Math.floor((i-1)/26);}
+  return s;
+}
+function gridRefFromPos(wx,wy){
+  if(!S.grid)return'';
+  const {cols,rows,x0,y0,x1,y1,orient}=S.grid;
+  const fx=(wx-x0)/(x1-x0);
+  const fy=(wy-y0)/(y1-y0);
+  if(fx<0||fx>1||fy<0||fy>1)return'';
+  if((orient||'LN')==='LN'){
+    // Letters across (columns), numbers down (rows) → e.g. A1, B4
+    const col=Math.floor(fx*cols);
+    const row=Math.floor(fy*rows)+1;
+    if(col<0||col>=cols||row<1||row>rows)return'';
+    return colName(col)+row;
+  } else {
+    // Numbers across (columns), letters down (rows) → e.g. 1A, 4B
+    const col=Math.floor(fx*cols)+1;
+    const row=Math.floor(fy*rows);
+    if(col<1||col>cols||row<0||row>=rows)return'';
+    return col+colName(row);
+  }
+}
+
+function gridExampleRef(cols,rows,orient){
+  if((orient||'LN')==='LN'){
+    return{first:colName(0)+'1',last:colName(cols-1)+rows};
+  } else {
+    return{first:'1'+colName(0),last:cols+colName(rows-1)};
+  }
+}
+
+function updateGridPreview(){
+  const cols=parseInt(document.getElementById('gCols').value)||10;
+  const rows=parseInt(document.getElementById('gRows').value)||8;
+  const orient=document.getElementById('gOrientNL')?.checked?'NL':'LN';
+  const colLbl=document.getElementById('gColLbl');
+  const rowLbl=document.getElementById('gRowLbl');
+  if(orient==='LN'){
+    if(colLbl)colLbl.textContent='Columns — Letters (e.g. '+cols+' = A–'+colName(cols-1)+')';
+    if(rowLbl)rowLbl.textContent='Rows — Numbers (e.g. '+rows+' = rows 1–'+rows+')';
+  } else {
+    if(colLbl)colLbl.textContent='Columns — Numbers (e.g. '+cols+' = 1–'+cols+')';
+    if(rowLbl)rowLbl.textContent='Rows — Letters (e.g. '+rows+' = A–'+colName(rows-1)+')';
+  }
+  const ex=gridExampleRef(cols,rows,orient);
+  const prev=document.getElementById('gPreview');
+  if(prev)prev.textContent='Range: '+ex.first+' → '+ex.last;
+}
+
+function openGridSetup(){
+  if(!bgImg){alert('Load a map first.');return;}
+  // Pre-fill if grid exists
+  if(S.grid){
+    document.getElementById('gCols').value=S.grid.cols;
+    document.getElementById('gRows').value=S.grid.rows;
+    const orient=S.grid.orient||'LN';
+    document.getElementById('gOrientLN').checked=orient==='LN';
+    document.getElementById('gOrientNL').checked=orient==='NL';
+    const ex=gridExampleRef(S.grid.cols,S.grid.rows,orient);
+    document.getElementById('gStatus').textContent='Grid active — '+ex.first+' → '+ex.last;
+    document.getElementById('gStatus').style.display='block';
+    document.getElementById('gClearBtn').style.display='inline-flex';
+  } else {
+    document.getElementById('gStatus').style.display='none';
+    document.getElementById('gClearBtn').style.display='none';
+  }
+  updateGridPreview();
+  openModal('mGrid');
+}
+
+function startGridCalib(){
+  const cols=parseInt(document.getElementById('gCols').value)||10;
+  const rows=parseInt(document.getElementById('gRows').value)||8;
+  const orient=document.getElementById('gOrientNL').checked?'NL':'LN';
+  closeModal('mGrid');
+  // Place handles at sensible starting positions based on current map view
+  const cx=cv.width/2,cy=cv.height/2;
+  const offX=cv.width*0.15,offY=cv.height*0.15;
+  // Convert screen positions to world coords
+  const tl=toW(cx-offX,cy-offY);
+  const br=toW(cx+offX,cy+offY);
+  gridHandles=[
+    {x:tl.x,y:tl.y,corner:'tl',dragging:false},
+    {x:br.x,y:br.y,corner:'br',dragging:false}
+  ];
+  gridCalib=true;
+  gridCalibCols=cols;gridCalibRows=rows;gridCalibOrient=orient;
+  setMapMode('select');
+  document.getElementById('mapHint').textContent='Drag orange handles to grid corners, then click Save Grid';
+  // Show save button
+  document.getElementById('gridBtn').textContent='💾';
+  document.getElementById('gridBtn').onclick=saveGrid;
+  redraw();
+}
+let gridCalibCols=10,gridCalibRows=8,gridCalibOrient='LN';
+
+function saveGrid(){
+  if(!gridCalib||gridHandles.length<2)return;
+  const tl=gridHandles.find(h=>h.corner==='tl');
+  const br=gridHandles.find(h=>h.corner==='br');
+  S.grid={cols:gridCalibCols,rows:gridCalibRows,orient:gridCalibOrient,x0:tl.x,y0:tl.y,x1:br.x,y1:br.y};
+  gridCalib=false;gridHandles=[];
+  document.getElementById('gridBtn').textContent='⊞';
+  document.getElementById('gridBtn').onclick=openGridSetup;
+  document.getElementById('mapHint').textContent='Select a unit pin or drop a new pin';
+  sv();redraw();
+}
+
+function clearGrid(){
+  S.grid=null;gridCalib=false;gridHandles=[];
+  document.getElementById('gridBtn').textContent='⊞';
+  document.getElementById('gridBtn').onclick=openGridSetup;
+  sv();redraw();closeModal('mGrid');
+}
+
+function drawGridHandles(){
+  if(!gridCalib||gridHandles.length<2)return;
+  const tl=gridHandles.find(h=>h.corner==='tl');
+  const br=gridHandles.find(h=>h.corner==='br');
+  if(!tl||!br)return;
+
+  const x0=tl.x,y0=tl.y,x1=br.x,y1=br.y;
+  const cols=gridCalibCols,rows=gridCalibRows;
+  const orient=gridCalibOrient||'LN';
+  const w=x1-x0,h2=y1-y0;
+
+  ctx.save();
+
+  // Semi-transparent grid fill so you can see the overlay
+  ctx.fillStyle='rgba(91,106,245,.06)';
+  ctx.fillRect(x0,y0,w,h2);
+
+  // Grid lines
+  ctx.strokeStyle='rgba(91,106,245,.55)';
+  ctx.lineWidth=1/sc;
+  ctx.setLineDash([4/sc,3/sc]);
+
+  // Vertical lines
+  for(let i=0;i<=cols;i++){
+    const lx=x0+w*(i/cols);
+    ctx.beginPath();ctx.moveTo(lx,y0);ctx.lineTo(lx,y1);ctx.stroke();
+  }
+  // Horizontal lines
+  for(let i=0;i<=rows;i++){
+    const ly=y0+h2*(i/rows);
+    ctx.beginPath();ctx.moveTo(x0,ly);ctx.lineTo(x1,ly);ctx.stroke();
+  }
+  ctx.setLineDash([]);
+
+  // Outer border — brighter
+  ctx.strokeStyle='rgba(91,106,245,.9)';
+  ctx.lineWidth=2/sc;
+  ctx.strokeRect(x0,y0,w,h2);
+
+  // Cell labels — only draw if cells are large enough to be readable
+  const cellW=w/cols,cellH=h2/rows;
+  const minCellPx=Math.min(cellW,cellH)*sc;
+  if(minCellPx>22){
+    const fontSize=Math.min(10,minCellPx*0.28)/sc;
+    ctx.font=`600 ${fontSize}px Inter,sans-serif`;
+    ctx.fillStyle='rgba(255,255,255,.75)';
+    ctx.textAlign='center';ctx.textBaseline='middle';
+    for(let ci=0;ci<cols;ci++){
+      for(let ri=0;ri<rows;ri++){
+        const lx=x0+cellW*(ci+.5);
+        const ly=y0+cellH*(ri+.5);
+        const ref=orient==='LN'?colName(ci)+(ri+1):(ci+1)+colName(ri);
+        ctx.fillText(ref,lx,ly);
+      }
+    }
+  } else if(minCellPx>10){
+    // Just label first row and first column headers
+    const fontSize=Math.min(9,minCellPx*0.4)/sc;
+    ctx.font=`600 ${fontSize}px Inter,sans-serif`;
+    ctx.textAlign='center';ctx.textBaseline='middle';
+    // Column headers
+    for(let ci=0;ci<cols;ci++){
+      const lx=x0+cellW*(ci+.5);
+      const label=orient==='LN'?colName(ci):String(ci+1);
+      ctx.fillStyle='rgba(91,106,245,.9)';
+      ctx.fillRect(lx-cellW*.35,y0-fontSize*1.4,cellW*.7,fontSize*1.3);
+      ctx.fillStyle='#fff';
+      ctx.fillText(label,lx,y0-fontSize*.8);
+    }
+    // Row headers
+    for(let ri=0;ri<rows;ri++){
+      const ly=y0+cellH*(ri+.5);
+      const label=orient==='LN'?String(ri+1):colName(ri);
+      ctx.fillStyle='rgba(91,106,245,.9)';
+      ctx.fillRect(x0-fontSize*1.6,ly-fontSize*.5,fontSize*1.4,fontSize);
+      ctx.fillStyle='#fff';
+      ctx.fillText(label,x0-fontSize*.9,ly);
+    }
+  }
+
+  // Corner handles — larger and more visible
+  [{h:tl,label:'⊤⊣'},{h:br,label:'⊢⊥'}].forEach(({h,label})=>{
+    ctx.save();
+    ctx.shadowColor='rgba(0,0,0,.6)';ctx.shadowBlur=10/sc;
+    // Outer ring
+    ctx.beginPath();ctx.arc(h.x,h.y,13/sc,0,Math.PI*2);
+    ctx.fillStyle='rgba(240,120,69,.25)';ctx.fill();
+    // Inner circle
+    ctx.beginPath();ctx.arc(h.x,h.y,9/sc,0,Math.PI*2);
+    ctx.fillStyle='#f07845';ctx.fill();
+    ctx.strokeStyle='#fff';ctx.lineWidth=2/sc;ctx.stroke();
+    ctx.shadowBlur=0;
+    // Corner label
+    const lbl=h.corner==='tl'?'TL':'BR';
+    ctx.font=`bold ${7.5/sc}px Inter,sans-serif`;
+    ctx.textAlign='center';ctx.textBaseline='middle';
+    ctx.fillStyle='#fff';ctx.fillText(lbl,h.x,h.y);
+    ctx.restore();
+  });
+
+  ctx.restore();
+}
+
+// Hook grid handle dragging into canvas events
+// We'll call these from within the existing mousedown/mousemove/mouseup handlers
+function gridHandleAt(wx,wy){
+  return gridHandles.find(h=>Math.hypot(wx-h.x,wy-h.y)<14/sc);
+}
+
+// ══════════════════════════════════════
+// UTILS
+// ══════════════════════════════════════
+function toggleTheme(){S.dark=!S.dark;document.body.classList.toggle('lt',!S.dark);document.getElementById('thBtn').textContent=S.dark?'☀':'🌙';sv();}
+function finalise(){S.done=true;sv();closeModal('mFin');const b=document.getElementById('finBtn');if(b){b.textContent='✓ Done';b.disabled=true;}}
+function confirmNew(){try{localStorage.removeItem(SK);}catch(e){}closeModal('mNew');window.location.reload();}
+function exportCSV(){
+  const rows=[['Job#','Created','Closed','Status','Severity','Flagged','Unit','Caller','Summary','Notes','Location','Resolution','Thread']];
+  S.jobs.forEach(j=>{const u=j.unitId?S.units.find(x=>x.id===j.unitId):null;rows.push([j.seq,j.ts,j.closedAt||'',j.status,j.sev?SEV[j.sev]:'',j.flagged?'Yes':'No',u?u.name:'',j.caller||'',j.sum,j.notes||'',j.loc||'',j.resNote||'',(j.thread||[]).map(t=>new Date(t.ts).toLocaleTimeString('en-AU',{hour12:false})+': '+t.text).join(' | ')]);});
+  const csv=rows.map(r=>r.map(v=>`"${String(v).replace(/"/g,'""')}"`).join(',')).join('\n');
+  const a=document.createElement('a');a.href=URL.createObjectURL(new Blob([csv],{type:'text/csv'}));a.download=`${(S.name||'event').replace(/\s+/g,'-')}-ecc.csv`;a.click();
+}
+function loadMap(e){const f=e.target.files[0];if(!f)return;const r=new FileReader();r.onload=ev=>{S.bg=ev.target.result;const img=new Image();img.onload=()=>{bgImg=img;document.getElementById('mapEmp').classList.add('gone');fitMap();sv();};img.src=ev.target.result;};r.readAsDataURL(f);e.target.value='';}
+function openModal(id){document.getElementById(id).classList.add('on');}
+function closeModal(id){document.getElementById(id).classList.remove('on');}
+document.querySelectorAll('.mb').forEach(bg=>bg.addEventListener('click',e=>{if(e.target===bg)bg.classList.remove('on');}));
+</script>
+</body>
+</html>
